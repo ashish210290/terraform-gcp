@@ -1,10 +1,10 @@
 steps:
   - id: 'terraform plan' 
     name: 'hashicorp/terraform:latest'
-    script: terraform init
+    script: init
 
   - id: 'terraform init' 
     name: 'hashicorp/terraform:latest'
     dir: ./terraform
-    script: terraform plan
+    script:  plan
   
