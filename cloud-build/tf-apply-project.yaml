@@ -1,0 +1,6 @@
+steps:
+  - id: 'terraform plan' 
+    name: 'hashicorp/terraform'
+    dir: ./terraform
+    args: 
+      - apply
