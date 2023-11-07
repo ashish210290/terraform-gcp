@@ -1,11 +1,9 @@
 steps:
-  - name: 'hashicorp/terraform:latest'
-    args: [
-        'init'
-    ]
-  - name: 'hashicorp/terraform:latest'
-    entrypoint: 'bash'
-    args: [
-        '-c',
-        'terraform plan'
-    ]
+  -id: 'terraform plan' 
+    name: 'hashicorp/terraform:latest'
+    script: terraform init
+
+  - id: 'terraform init' 
+    name: 'hashicorp/terraform:latest'
+    script: terraform plan
+  
