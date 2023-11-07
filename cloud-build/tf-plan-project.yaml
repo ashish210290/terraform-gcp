@@ -1,13 +1,11 @@
 steps:
   - id: 'terraform plan' 
-    name: 'hashicorp/terraform'
+    name: 'hashicorp/terraform:1.0.0'
     dir: ./terraform
-    args: 
-      - init
-
-  - id: 'terraform init' 
-    name: 'hashicorp/terraform'
-    dir: ./terraform
+    entrypoint: sh
     args:
-      - plan
-  
+      - '-c'
+      - terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
+      - terraform plan
+  substitution: 
+    _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate 
