@@ -1,7 +1,7 @@
 steps:
   - name: 'hashicorp/terraform:latest'
     args: [
-        'terraform init'
+        'init'
     ]
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'bash'
