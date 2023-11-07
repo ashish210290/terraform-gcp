@@ -8,5 +8,5 @@ steps:
   - |
     terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
     terraform apply -auto-approve
-  substitution: 
+  substitutions: 
     _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate 
