@@ -4,8 +4,9 @@ steps:
     dir: ./terraform
     entrypoint: sh
     args:
-      - '-c'
-      - terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
-      - terraform apply -auto-approve
+    - '-c'
+    - |
+      terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
+      terraform apply -auto-approve
   substitution: 
     _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate 
