@@ -1,11 +1,11 @@
 steps:
   - id: 'terraform plan' 
-    name: 'gcr.io/$PROJECT_ID/terraform'
+    name: 'hashicorp/terraform'
     args: 
       - init
 
   - id: 'terraform init' 
-    name: 'gcr.io/$PROJECT_ID/terraform'
+    name: 'hashicorp/terraform'
     dir: ./terraform
     args:
       - plan
