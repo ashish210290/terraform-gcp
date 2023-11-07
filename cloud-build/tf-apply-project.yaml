@@ -3,4 +3,10 @@ steps:
     name: 'hashicorp/terraform'
     dir: ./terraform
     args: 
+      - init
+      
+  - id: 'terraform plan' 
+    name: 'hashicorp/terraform'
+    dir: ./terraform
+    args: 
       - apply
