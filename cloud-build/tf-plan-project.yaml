@@ -1,5 +1,5 @@
 steps:
-  -id: 'terraform plan' 
+  - id: 'terraform plan' 
     name: 'hashicorp/terraform:latest'
     script: terraform init
 
