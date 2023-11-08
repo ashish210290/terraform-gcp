@@ -19,6 +19,9 @@ resource "google_cloudbuild_trigger" "test" {
       _VAR_FILES = "../tfvars/pr.tfvars"
       _TF_EXTRA_OPTION = "-lock=false"
     }
+    approval_config {
+      approval_required = true
+    }
     included_files = ["terraform/**"]
 }
 
@@ -46,6 +49,9 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
       _TF_OPTION = "-auto-approve"
       _VAR_FILES = "../tfvars/pr.tfvars"
       _TF_EXTRA_OPTION = "-lock=false"
+    }
+    approval_config {
+      approval_required = true
     }
     included_files = ["terraform/**"]
 }
