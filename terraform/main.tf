@@ -9,7 +9,7 @@ resource "google_cloudbuild_trigger" "tf-ashish-gcp-plan-trigger" {
       name = "ashish210290/terraform-gcp"
       owner = "ashish210290"
       push {
-        branch = ".*"
+        branch = "np"
       }
     }
     filename = "cloudbuild.yml"
