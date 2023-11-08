@@ -1,6 +1,7 @@
-resource "google_cloudbuild_trigger" "tf-ashish-gcp-plan-trigger" {
+resource "google_cloudbuild_trigger" "test" {
      provider = google-beta
      project = "divine-energy-253221"
+     name = "Terraform-Trigger"
      description = "A trigger to push to any branch"
     trigger_template {
       branch_name = "np"
@@ -13,7 +14,7 @@ resource "google_cloudbuild_trigger" "tf-ashish-gcp-plan-trigger" {
         branch = "np"
       }
     }
-    filename = "cloudbuild.yml"
+    filename = "cloud-build/tf-apply-project.yaml"
     substitutions = {
       _TF_COMMAND = "plan"
       _TF_OPTION = "-auto-approve"
