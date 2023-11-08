@@ -1,14 +1,15 @@
 resource "google_cloudbuild_trigger" "tf-ashish-gcp-plan-trigger" {
+     provider = google-beta
      project = "divine-energy-253221"
      description = "A trigger to push to any branch"
     trigger_template {
-      branch_name = ".*"
+      branch_name = "np"
       repo_name = "ashish210290/terraform-gcp"
     }
     github {
       name = "ashish210290/terraform-gcp"
       owner = "ashish210290"
-      push {
+      pull_request {
         branch = "np"
       }
     }
