@@ -11,7 +11,7 @@ resource "google_cloudbuild_trigger" "test" {
       name = "ashish210290/terraform-gcp"
       owner = "ashish210290"
       pull_request {
-        branch = "np"
+        branch = "main"
       }
     }
     filename = "cloud-build/tf-apply-project.yaml"
