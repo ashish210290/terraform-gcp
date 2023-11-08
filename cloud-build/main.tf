@@ -3,10 +3,10 @@ resource "google_cloudbuild_trigger" "test" {
      project = "divine-energy-253221"
      name = "Terraform-Trigger"
      description = "A trigger to push to any branch"
-    trigger_template {
-      branch_name = "np"
-      repo_name = "ashish210290/terraform-gcp"
-    }
+    # trigger_template {
+    #   branch_name = "np"
+    #   repo_name = "ashish210290/terraform-gcp"
+    # }
     github {
       name = "ashish210290/terraform-gcp"
       owner = "ashish210290"
