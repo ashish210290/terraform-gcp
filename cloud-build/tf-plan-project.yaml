@@ -7,6 +7,6 @@ steps:
   - '-c'
   - |
     terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
-    terraform plan -var-file=tfvars/pr.tfvars
+    terraform plan -var-file=${path.module}/tfvars/pr.tfvars
 substitutions: 
   _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate 
