@@ -1,3 +1,5 @@
+# Create Trigger for terraform plan ##
+
 resource "google_cloudbuild_trigger" "test" {
      provider = google-beta
      project = "divine-energy-253221"
@@ -19,14 +21,14 @@ resource "google_cloudbuild_trigger" "test" {
       _VAR_FILES = "../tfvars/pr.tfvars"
       _TF_EXTRA_OPTION = "-lock=false"
     }
-    # approval_config {
-    #   approval_required = true
-    # }
+    approval_config {
+      approval_required = true
+    }
     included_files = ["terraform/**"]
 }
 
 
-# Create Trigger for terraform apply ##
+# Create Trigger for terraform apply, approval required ##
 
 
 resource "google_cloudbuild_trigger" "trigger-apply" {
