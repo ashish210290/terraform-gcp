@@ -1,7 +1,7 @@
 steps:
 - id: 'terraform plan' 
   name: 'hashicorp/terraform:1.4.6'
-  dir: "${_DIR}"/"${_TF_DIR}"
+  dir: ${_DIR}/${_TF_DIR}
   entrypoint: sh
   args:
   - '-c'
