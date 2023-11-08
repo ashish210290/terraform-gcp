@@ -15,3 +15,5 @@ substitutions:
   _TF_COMMAND: plan
   _DIR: "."
   _TF_DIR: terraform
+
+# Create Trigger for terraform apply ##
