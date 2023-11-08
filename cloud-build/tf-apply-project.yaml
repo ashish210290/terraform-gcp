@@ -6,8 +6,7 @@ steps:
   args:
   - '-c'
   - |
-    terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}" -backend-config="${BACKEND_CONFIG_PREFIX}"
+    terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
     terraform apply -auto-approve
 substitutions: 
   _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate
-  _BACKEND_CONFIG_PREFIX: prefix=state
