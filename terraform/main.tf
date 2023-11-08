@@ -7,15 +7,16 @@ resource "google_cloudbuild_trigger" "test" {
     github {
       name = "terraform-gcp"
       owner = "ashish210290"
-      pull_request {
+      push {
         branch = "^main$"
       }
     }
     filename = "cloud-build/tf-plan-project.yaml"
     substitutions = {
+      _BACKEND_CONFIG_PREFIX: "terraform/pr"
       _TF_COMMAND = "plan"
       _TF_OPTION = "-auto-approve"
-      _VAR_FILES = "tfvars/pr.tfvars"
+      _VAR_FILES = "../tfvars/pr.tfvars"
       _TF_EXTRA_OPTION = "-lock=false"
     }
     included_files = ["terraform/**"]
