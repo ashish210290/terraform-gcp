@@ -7,7 +7,7 @@ steps:
   - '-c'
   - |
     terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
-    terraform apply -var-file=tfvars/pr.tfvars -auto-approve
+    terraform apply -var-file=pr.tfvars -auto-approve
 substitutions: 
   _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate
   
