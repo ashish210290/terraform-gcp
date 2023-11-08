@@ -1,0 +1,6 @@
+env = "pr"
+project_id = "divine-energy-253221"
+project_name = "My Project 96351"
+project_number = "76231282453"
+region = "northamerica-northeast1"
+data_platform_ops_br = "main"
