@@ -8,10 +8,10 @@ resource "google_cloudbuild_trigger" "test" {
     #   repo_name = "ashish210290/terraform-gcp"
     # }
     github {
-      name = "ashish210290/terraform-gcp"
+      name = "terraform-gcp"
       owner = "ashish210290"
       pull_request {
-        branch = "main"
+        branch = "^main$"
       }
     }
     filename = "cloud-build/tf-apply-project.yaml"
