@@ -15,7 +15,7 @@ resource "google_cloudbuild_trigger" "test" {
     }
     filename = "cloud-build/tf-plan-project.yaml"
     substitutions = {
-      _BACKEND_CONFIG_PREFIX: "terraform/pr"
+      _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
       _TF_COMMAND = "plan"
       _TF_OPTION = "-auto-approve"
       _VAR_FILES = "../tfvars/pr.tfvars"
@@ -56,4 +56,19 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
       approval_required = true
     }
     included_files = ["terraform/**"]
+}
+
+resource "google_logging_metric" "nifi_log_metric" {
+  provider = google-beta
+  project = "divine-energy-253221"
+
+  name = "nifi-too-mny-files"
+  description = "Detect too many files"
+  filter = "labels.\"log.file.name\"=\"nifi-app.log\" AND \"Initiating checkpoint of FlowFile Repository\""
+
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type = "INT64"
+  }
+
 }
