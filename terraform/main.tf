@@ -74,9 +74,11 @@ resource "google_monitoring_alert_policy" "test_alert_policy_name" {
     condition_absent {
       filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
       duration = "300s"
+
       trigger {
         count = 1
       }
+      
       aggregations {
         alignment_period = "300s"
         per_series_aligner = "ALIGN_MEAN"
