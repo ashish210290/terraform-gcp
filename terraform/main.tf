@@ -59,21 +59,8 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
 }
 
 
-resource "google_monitoring_notification_channel" "basic" {
-
-  provider = google-beta
-  project = "divine-energy-253221"
-  display_name = "Email notification Channel"
-  description = "Send notification to ashish.er11@gmail.com"
-  type = "email"
-  labels = {
-    email_address = "ashish.er11@gmail.com"
-  }
-  force_delete = true
-}
-
 resource "google_monitoring_alert_policy" "alert_policy" {
-  provider = google-beta
+  
   project = "divine-energy-253221"
   display_name = "My Alert Policy"
   combiner     = "OR"
@@ -87,7 +74,6 @@ resource "google_monitoring_alert_policy" "alert_policy" {
       rule_group  = "a test"
     }
   }
-
   alert_strategy {
     auto_close  = "1800s"
   }
