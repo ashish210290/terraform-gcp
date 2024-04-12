@@ -68,6 +68,7 @@ resource "google_monitoring_notification_channel" "name" {
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
+  project = var.project_id
   display_name = "My Alert Policy"
   combiner     = "OR"
   conditions {
@@ -84,19 +85,4 @@ resource "google_monitoring_alert_policy" "alert_policy" {
   alert_strategy {
     auto_close  = "1800s"
   }
-}
-
-resource "google_logging_metric" "nifi_log_metric" {
-  provider = google-beta
-  project = "divine-energy-253221"
-
-  name = "nifi-too-mny-files"
-  description = "Detect too many files"
-  filter = "labels.\"log.file.name\"=\"nifi-app.log\" AND \"Initiating checkpoint of FlowFile Repository\""
-
-  metric_descriptor {
-    metric_kind = "DELTA"
-    value_type = "INT64"
-  }
-
 }
