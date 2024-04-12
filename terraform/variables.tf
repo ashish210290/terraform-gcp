@@ -4,3 +4,6 @@ variable "project_name" {}
 variable "project_number" {}
 variable "region" {}
 variable "data_platform_ops_br" {}
+variable "display_name" {}
+variable "description" {}
+variable "type" {}

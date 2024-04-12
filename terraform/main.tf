@@ -58,6 +58,34 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
     included_files = ["terraform/**"]
 }
 
+
+resource "google_monitoring_notification_channel" "name" {
+
+  project = var.project_id
+  display_name = var.display_name
+  description = var.description
+  type = var.type
+}
+
+resource "google_monitoring_alert_policy" "alert_policy" {
+  display_name = "My Alert Policy"
+  combiner     = "OR"
+  conditions {
+    display_name = "test condition"
+    condition_prometheus_query_language {
+      query      = "compute_googleapis_com:instance_cpu_usage_time > 0"
+      duration   = "60s"
+      evaluation_interval = "60s"
+      alert_rule  = "AlwaysOn"
+      rule_group  = "a test"
+    }
+  }
+
+  alert_strategy {
+    auto_close  = "1800s"
+  }
+}
+
 resource "google_logging_metric" "nifi_log_metric" {
   provider = google-beta
   project = "divine-energy-253221"
