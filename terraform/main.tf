@@ -59,22 +59,26 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
 }
 
 
-resource "google_monitoring_alert_policy" "alert_policy" {
+resource "google_monitoring_alert_policy" "test_alert_policy_name" {
   
   project = "divine-energy-253221"
   display_name = "My Alert Policy"
   combiner     = "OR"
+
   conditions {
-    display_name = "test condition"
-    condition_prometheus_query_language {
-      query      = "compute_googleapis_com:instance_cpu_usage_time > 0"
-      duration   = "60s"
-      evaluation_interval = "60s"
-      alert_rule  = "AlwaysOn"
-      rule_group  = "a test"
+    display_name = "test condition - metrics missing"
+    condition_absent {
+      filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
+      duration = "300s"
+      trigger {
+        count = 1
+      }
+      aggregations {
+        alignment_period = "300s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
     }
   }
-  alert_strategy {
-    auto_close  = "1800s"
-  }
+  enabled = true
+  notification_channels = ["projects/var.project_id/notificationChannels/16399540197443471345"]
 }
