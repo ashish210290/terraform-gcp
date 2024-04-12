@@ -62,9 +62,12 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
 resource "google_monitoring_notification_channel" "name" {
 
   project = var.project_id
-  display_name = var.display_name
-  description = var.description
-  type = var.type
+  display_name = "Email notification Channel"
+  description = "Send notification to ashish.er11@gmail.com"
+  type = "email"
+  labels = {
+    email_address = "ashish.er11@gmail.com"
+  }
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
