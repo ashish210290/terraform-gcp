@@ -1,5 +1,9 @@
 # Create Trigger for terraform plan ##
 
+provider "google-beta" {
+  project = var.project_id
+  
+}
 resource "google_cloudbuild_trigger" "test" {
      provider = google-beta
      project = "divine-energy-253221"
