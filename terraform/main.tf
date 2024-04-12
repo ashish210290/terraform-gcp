@@ -59,7 +59,7 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
 }
 
 
-resource "google_monitoring_notification_channel" "name" {
+resource "google_monitoring_notification_channel" "basic" {
 
   project = var.project_id
   display_name = "Email notification Channel"
@@ -68,6 +68,7 @@ resource "google_monitoring_notification_channel" "name" {
   labels = {
     email_address = "ashish.er11@gmail.com"
   }
+  force_delete = true
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
