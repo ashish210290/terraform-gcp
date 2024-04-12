@@ -61,7 +61,8 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
 
 resource "google_monitoring_notification_channel" "basic" {
 
-  project = var.project_id
+  provider = google-beta
+  project = "divine-energy-253221"
   display_name = "Email notification Channel"
   description = "Send notification to ashish.er11@gmail.com"
   type = "email"
@@ -72,7 +73,8 @@ resource "google_monitoring_notification_channel" "basic" {
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
-  project = var.project_id
+  provider = google-beta
+  project = "divine-energy-253221"
   display_name = "My Alert Policy"
   combiner     = "OR"
   conditions {
