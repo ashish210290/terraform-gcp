@@ -15,7 +15,7 @@ substitutions:
   _TF_COMMAND: plan
   _DIR: "."
   _TF_DIR: terraform
-options:
-  logging: CLOUD_LOGGING_ONLY  
+# options:
+#   logging: CLOUD_LOGGING_ONLY  
 
 
