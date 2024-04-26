@@ -26,7 +26,7 @@ resource "google_cloudbuild_trigger" "test" {
       _TF_EXTRA_OPTION = "-lock=false"
     }
     approval_config {
-      approval_required = true
+      approval_required = false
     }
     included_files = ["terraform/**"]
 }
@@ -85,5 +85,5 @@ resource "google_monitoring_alert_policy" "test_alert_policy_name" {
     }
   }
   enabled = true
-  notification_channels = ["projects/var.project_id/notificationChannels/16399540197443471345"]
+  notification_channels = ["projects/divine-energy-253221/notificationChannels/16399540197443471345"]
 }
