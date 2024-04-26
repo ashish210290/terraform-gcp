@@ -89,6 +89,7 @@ resource "google_monitoring_alert_policy" "test_alert_policy_name" {
 }
 
 resource "google_monitoring_alert_policy" "Alert-Policy-1" {
+    project = "divine-energy-253221"
     display_name = "My Alert POlicy 1"
     combiner = "OR"
     conditions {
