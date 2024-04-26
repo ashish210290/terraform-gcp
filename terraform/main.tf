@@ -100,7 +100,7 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
       comparison = "COMPARISON_GT"
       aggregations {
         alignment_period = "60s"
-        per_series_aligner = "ALIGN_RATE"
+        per_series_aligner = "ALIGN_NONE"
       }
       evaluation_missing_data = "EVALUATION_MISSING_DATA_INACTIVE"
       }     
