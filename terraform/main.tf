@@ -62,7 +62,6 @@ resource "google_cloudbuild_trigger" "trigger-apply" {
     included_files = ["terraform/**"]
 }
 
-
 resource "google_monitoring_alert_policy" "test_alert_policy_name" {
   
   project = "divine-energy-253221"
