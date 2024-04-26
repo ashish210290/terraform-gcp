@@ -96,10 +96,10 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
       condition_threshold {
       filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
       duration = "60s"
-      comparison = "COMPARISION_GT"
+      comparison = "COMPARISON_GT"
       aggregations {
         alignment_period = "60s"
-        per_series_aligner = "ALING_RATE"
+        per_series_aligner = "ALIGN_RATE"
       }
       evaluation_missing_data = "EVALUATION_MISSING_DATA_INACTIVE"
       }     
