@@ -121,7 +121,7 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
   project               = "divine-energy-253221"
   display_name          = "[${var.env}] NiFi JVM is down for 5 mins"
   documentation {
-    content = "Either Prod NiFi (${host_name} )instance is down or its bindplane agent is not running"
+    content = "Either Prod NiFi instance is down or its bindplane agent is not running"
     mime_type = "text/markdown"
   }
   severity = "CRITICAL"
