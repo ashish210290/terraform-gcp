@@ -1,5 +1,12 @@
 # Create Trigger for terraform plan ##
 
+
+variable "enable_nifi_alert" {
+    description = "Enable nifi metric alerts"
+    type = string
+    default = "true"
+  
+}
 provider "google-beta" {
   project = var.project_id
   
@@ -108,4 +115,33 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
     user_labels = {
       foo = "bar"
     }
+}
+
+ resource "google_monitoring_alert_policy" "nifi_jvm_metrics_status" {
+  project               = "divine-energy-253221"
+  display_name          = "[${var.env}] NiFi JVM is down for 5 mins"
+  documentation {
+    content = "Either Prod NiFi (${host_name} )instance is down or its bindplane agent is not running"
+    mime_type = "text/markdown"
+  }
+  severity = "CRITICAL"
+  notification_channels = ["projects/divine-energy-253221/notificationChannels/16399540197443471345"]
+  combiner              = "OR"
+  enabled               = var.enable_nifi_alert
+
+  conditions {
+    display_name = "NiFi is down - prometheus/nifi_jvm_uptime/gauge is missing"
+    condition_absent {
+      filter   = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
+      duration = "300s"
+      trigger {
+        count = 1
+      }
+      aggregations {
+        alignment_period     = "300s"
+        per_series_aligner   = "ALIGN_MEAN"
+        cross_series_reducer = "REDUCE_NONE"
+      }
+    }
+  }
 }
