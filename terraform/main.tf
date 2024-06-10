@@ -158,7 +158,7 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
   region = "northamerica-northeast1"
   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
   size = 10
-  type = "pd-standard"
+  type = "pd-balanced"
 
   labels = {
     environment = "non-prod"
