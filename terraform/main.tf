@@ -9,7 +9,7 @@ variable "enable_nifi_alert" {
 }
 provider "google-beta" {
   project = var.project_id
-  
+  region = "northamerica-northeast1"
 }
 resource "google_cloudbuild_trigger" "test" {
      provider = google-beta
@@ -144,4 +144,52 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
       }
     }
   }
+}
+
+# Create a Regional Disk 
+
+resource "google_compute_region_disk" "sftpgo_region_disk" {
+  name = "sftpgo_region_disk"
+  region = "northamerica-northeast1"
+  replica_zones = "northamerica-northeast1-a, northamerica-northeast1-b"
+  size = 10
+  type = "pd-standard"
+
+  labels = {
+    environment = "non-prod"
+  }
+}
+
+# Verify that disk is created correctly.
+
+output "sftpgo_region_disk" {
+  value = google_compute_region_disk.sftpgo_region_disk
+}
+
+# Create a compute instance to just to formart regional disk 
+
+resource "google_compute_instance" "instance" {
+  name    = "format-disk-instance"
+  machine_type = "e2-micro"
+  zone = "northamerica-northeast1-a"
+
+  boot_disk {
+    initialize_params {
+    image = "cos-113-18244-85-24"
+    }
+  }
+  network_interface {
+   network = "default"
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+  EOT
+
+  depends_on = [ google_compute_region_disk.sftpgo_region_disk ]
+}
+
+output "instance_ip" {
+  value = google_compute_instance.instance.network_interface.0.access_config.0.nat_ip
 }
