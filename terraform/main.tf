@@ -167,7 +167,7 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
 
 # Verify that disk is created correctly.
 
-output "sftpgo_region_disk" {
+output "sftpgo-region-disk" {
   value = google_compute_region_disk.sftpgo-region-disk
 }
 
