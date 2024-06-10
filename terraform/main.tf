@@ -151,7 +151,7 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
 resource "google_compute_region_disk" "sftpgo_region_disk" {
   name = "sftpgo_region_disk"
   region = "northamerica-northeast1"
-  replica_zones = ["northamerica-northeast1-a, northamerica-northeast1-b"]
+  replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
   size = 10
   type = "pd-standard"
 
