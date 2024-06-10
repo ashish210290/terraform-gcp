@@ -153,8 +153,8 @@ provider "google" {
   region =  var.region
 }
 
-resource "google_compute_region_disk" "sftpgo_region_disk" {
-  name = "sftpgo_region_disk"
+resource "google_compute_region_disk" "sftpgo-region-disk" {
+  name = "sftpgo-region-disk"
   region = "northamerica-northeast1"
   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
   size = 10
@@ -192,7 +192,7 @@ resource "google_compute_instance" "instance" {
     sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
   EOT
 
-  depends_on = [ google_compute_region_disk.sftpgo_region_disk ]
+  depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
 }
 
 # output "instance_ip" {
