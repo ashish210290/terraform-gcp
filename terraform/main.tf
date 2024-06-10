@@ -165,6 +165,7 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
   }
 }
 
+
 # Verify that disk is created correctly.
 
 output "sftpgo-region-disk" {
