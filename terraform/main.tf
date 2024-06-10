@@ -182,7 +182,6 @@ resource "google_compute_instance" "instance" {
   boot_disk {
     initialize_params {
     image = "centos-cloud/centos-7"
-    size = 10
     }
   }
 
