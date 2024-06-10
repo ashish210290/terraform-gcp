@@ -181,7 +181,7 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-    image = "cos-113-18244-85-24"
+    image = "centos-cloud/centos-7"
     }
   }
   network_interface {
