@@ -182,7 +182,13 @@ resource "google_compute_instance" "instance" {
   boot_disk {
     initialize_params {
     image = "centos-cloud/centos-7"
+    size = 10
     }
+  }
+
+  attached_disk {
+    source = google_compute_region_disk.sftpgo-region-disk.id
+    device_name = "sftp-existing-disk"
   }
   network_interface {
    network = "default"
