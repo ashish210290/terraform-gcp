@@ -8,7 +8,7 @@ variable "enable_nifi_alert" {
   
 }
 provider "google-beta" {
-  project = var.project_id
+  project = "divine-energy-253221"
   region = "northamerica-northeast1"
 }
 resource "google_cloudbuild_trigger" "test" {
