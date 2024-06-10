@@ -8,7 +8,7 @@ variable "enable_nifi_alert" {
   
 }
 provider "google-beta" {
-  project = "divine-energy-253221"
+  project = var.project_id
   region = "northamerica-northeast1"
 }
 resource "google_cloudbuild_trigger" "test" {
@@ -147,6 +147,11 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
 }
 
 # Create a Regional Disk 
+
+provider "google" {
+  project = var.project_id
+  region =  var.region
+}
 
 resource "google_compute_region_disk" "sftpgo_region_disk" {
   name = "sftpgo_region_disk"
