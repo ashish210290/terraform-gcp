@@ -176,14 +176,22 @@ output "sftpgo-region-disk" {
 
 resource "google_compute_instance" "instance" {
   name    = "format-disk-instance"
-  machine_type = "e2-micro"
+  machine_type = "n1-standard-1"
   zone = "northamerica-northeast1-a"
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
 
   boot_disk {
+    auto_delete = true
     initialize_params {
     image = "cos-cloud/cos-113-lts"
-
+    size = 20
+    type = "pd-balanced"
     }
+    mode = "READ_WRITE"
   }
 
   attached_disk {
@@ -202,11 +210,63 @@ resource "google_compute_instance" "instance" {
       - mkdir -p /mnt/disks/sftpgo
       - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
       - chmod 777 /mnt/disks/sftpgo
+      - spleep 60
+      - echo "Tasks are completed. Shutting down."
+      - sudo shutdown -h now
     EOF
   }
 
   depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
 }
-# output "instance_ip" {
-#   value = google_compute_instance.instance.network_interface.0.access_config.0.nat_ip
-# }
+
+# Create an instance template
+resource "google_compute_instance_template" "instance_template" {
+  name           = "sftpgo-instance-template"
+  machine_type   = "e2-micro"
+
+  
+  disk {
+    auto_delete  = true
+    boot         = true
+    source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+    disk_type = "pd-standard"
+    disk_size_gb = 20
+  }
+
+  disk {
+    source      = google_compute_region_disk.sftpgo-region-disk
+    mode        = "rw"
+    auto_delete = false
+  }
+
+  metadata = {
+
+    user-data = <<-EOF
+      #cloud-config
+      bootcmd:
+      - mkdir -p /mnt/disks/sftpgo
+      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+      - chmod 777 /mnt/disks/sftpgo
+    EOF
+    gce-container-declaration = <<-EOF
+      spec:
+        containers:
+          - name: sftpgo
+            image: drakkan/sftpgo
+            volumeMounts:
+              - mountPath: /var/lib/sftpgo
+                name: sftpgo-vol
+        volumes:
+          - name: sftpgo-vol
+            hostPath:
+              path: /mnt/disks/sftpgo
+    EOF
+  }
+
+  service_account {
+    email  = "default"
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
+  tags = ["http-server"]
+}
