@@ -238,6 +238,9 @@ resource "google_compute_instance_template" "instance_template" {
     mode        = "rw"
     auto_delete = false
   }
+  network_interface {
+    network = "default"
+  }
 
   metadata = {
 
