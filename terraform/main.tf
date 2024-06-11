@@ -182,6 +182,7 @@ resource "google_compute_instance" "instance" {
   boot_disk {
     initialize_params {
     image = "centos-cloud/centos-7"
+
     }
   }
 
@@ -193,10 +194,16 @@ resource "google_compute_instance" "instance" {
    network = "default"
   }
 
-  metadata_startup_script = <<-EOT
-    #!/bin/bash
-    sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
-  EOT
+  metadata = {
+    user-data = <<-EOF
+      #cloud-config
+      bootcmd:
+        - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+        - mkdir -p /mnt/disks/sftpgo
+        - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+        - chmod 777 /mnt/disks/sftpgo
+    EOF
+  }
 
   depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
 }
