@@ -273,3 +273,25 @@ resource "google_compute_instance_template" "instance_template" {
 
   tags = ["http-server"]
 }
+
+# Create a managed instance group for sftpgo
+
+resource "google_compute_instance_group_manager" "instance-group-manager" {
+  name = "sftp-instance-group-manager"
+  base_instance_name = "sftp-instance"
+  target_size = 3
+
+  version {
+    instance_template = google_compute_instance_template.instance_template.id
+  }
+
+  named_port {
+    name = "http"
+    port = 8080
+  }
+
+  auto_healing_policies {
+    health_check      = google_compute_health_check.default.self_link
+    initial_delay_sec = 300
+  }
+}
