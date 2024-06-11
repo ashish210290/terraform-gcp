@@ -181,7 +181,7 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-    image = "centos-cloud/centos-7"
+    image = "cos-cloud/cos-113-lts"
 
     }
   }
@@ -198,10 +198,10 @@ resource "google_compute_instance" "instance" {
     user-data = <<-EOF
       #cloud-config
       bootcmd:
-        - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
-        - mkdir -p /mnt/disks/sftpgo
-        - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
-        - chmod 777 /mnt/disks/sftpgo
+      - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+      - mkdir -p /mnt/disks/sftpgo
+      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+      - chmod 777 /mnt/disks/sftpgo
     EOF
   }
 
