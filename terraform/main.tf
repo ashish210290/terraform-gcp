@@ -234,7 +234,7 @@ resource "google_compute_instance_template" "instance_template" {
   }
 
   disk {
-    source      = "google_compute_region_disk.sftpgo-region-disk"
+    source      = data.google_compute_region_disk.sftpgo-region-disk
     mode        = "rw"
     auto_delete = false
   }
