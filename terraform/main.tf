@@ -146,7 +146,7 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
   }
 }
 
-# Create a Regional Disk 
+# Create three Regional Disks 
 
 provider "google" {
   project = var.project_id
@@ -154,7 +154,8 @@ provider "google" {
 }
 
 resource "google_compute_region_disk" "sftpgo-region-disk" {
-  name = "sftpgo-region-disk"
+  count = 3
+  name = "sftpgo-region-disk-${count.index}"
   region = "northamerica-northeast1"
   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
   size = 10
@@ -172,10 +173,11 @@ output "sftpgo-region-disk" {
   value = google_compute_region_disk.sftpgo-region-disk
 }
 
-# Create a compute instance to just to formart regional disk 
+# Create a compute instance to just to formart the regional disk 
 
-resource "google_compute_instance" "instance" {
-  name    = "format-disk-instance"
+resource "google_compute_instance" "disk-formatter" {
+  count = 3
+  name    = "format-disk-instance-${count.index}"
   machine_type = "n1-standard-1"
   zone = "northamerica-northeast1-a"
   scheduling {
@@ -195,7 +197,7 @@ resource "google_compute_instance" "instance" {
   }
 
   attached_disk {
-    source = google_compute_region_disk.sftpgo-region-disk.id
+    source = "google_compute_region_disk.sftpgo-region-disk-${count.index}.id"
     device_name = "sftp-existing-disk"
   }
   network_interface {
@@ -216,12 +218,25 @@ resource "google_compute_instance" "instance" {
     EOF
   }
 
-  depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
+  depends_on = [ "google_compute_region_disk.sftpgo-region-disk-${count.index}" ]
 }
 
+resource "null_resource" "wait_for_formatting" {
+  count = 3
+
+  depends_on = [
+    google_compute_instance.disk-formatter
+  ]
+
+  provisioner "local-exec" {
+    command = "echo Disk ${google_compute_region_disk.sftpgo-region-disk[count.index].name} has been formatted."
+  }
+}
+
+
 # Create an instance template
-resource "google_compute_instance_template" "instance_template" {
-  name           = "sftpgo-instance-template"
+resource "google_compute_instance_template" "instance_template_0" {
+  name           = "sftpgo-instance-template-0"
   machine_type   = "e2-micro"
 
   
@@ -234,9 +249,11 @@ resource "google_compute_instance_template" "instance_template" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk.id
+    source      = google_compute_region_disk.sftpgo-region-disk[0].self_link
+    device_name = sftpgo-region-disk-0
     mode        = "rw"
     auto_delete = false
+    boot = false
   }
   network_interface {
     network = "default"
@@ -274,6 +291,121 @@ resource "google_compute_instance_template" "instance_template" {
   tags = ["http-server"]
 }
 
+# Create an instance template
+resource "google_compute_instance_template" "instance_template_1" {
+  name           = "sftpgo-instance-template-1"
+  machine_type   = "e2-micro"
+
+  
+  disk {
+    auto_delete  = true
+    boot         = true
+    source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+    disk_type = "pd-standard"
+    disk_size_gb = 20
+  }
+
+  disk {
+    source      = google_compute_region_disk.sftpgo-region-disk[1].self_link
+    device_name = sftpgo-region-disk-1
+    mode        = "rw"
+    auto_delete = false
+    boot = false
+  }
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+
+    user-data = <<-EOF
+      #cloud-config
+      bootcmd:
+      - mkdir -p /mnt/disks/sftpgo
+      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+      - chmod 777 /mnt/disks/sftpgo
+    EOF
+    gce-container-declaration = <<-EOF
+      spec:
+        containers:
+          - name: sftpgo
+            image: drakkan/sftpgo
+            volumeMounts:
+              - mountPath: /var/lib/sftpgo
+                name: sftpgo-vol
+        volumes:
+          - name: sftpgo-vol
+            hostPath:
+              path: /mnt/disks/sftpgo
+    EOF
+  }
+
+  service_account {
+    email  = "default"
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
+  tags = ["http-server"]
+}
+
+# Create an instance template
+resource "google_compute_instance_template" "instance_template_2" {
+  name           = "sftpgo-instance-template-2"
+  machine_type   = "e2-micro"
+
+  
+  disk {
+    auto_delete  = true
+    boot         = true
+    source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+    disk_type = "pd-standard"
+    disk_size_gb = 20
+  }
+
+  disk {
+    source      = google_compute_region_disk.sftpgo-region-disk[2].self_link
+    device_name = regional-disk-2
+    mode        = "rw"
+    auto_delete = false
+    boot = false
+  }
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+
+    user-data = <<-EOF
+      #cloud-config
+      bootcmd:
+      - mkdir -p /mnt/disks/sftpgo
+      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+      - chmod 777 /mnt/disks/sftpgo
+    EOF
+    gce-container-declaration = <<-EOF
+      spec:
+        containers:
+          - name: sftpgo
+            image: drakkan/sftpgo
+            volumeMounts:
+              - mountPath: /var/lib/sftpgo
+                name: sftpgo-vol
+        volumes:
+          - name: sftpgo-vol
+            hostPath:
+              path: /mnt/disks/sftpgo
+    EOF
+  }
+
+  service_account {
+    email  = "default"
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
+  tags = ["http-server"]
+}
+
+
 # Create a managed instance group for sftpgo
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
@@ -283,7 +415,13 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance_template.id
+    instance_template = google_compute_instance_template.instance_template_0.self_link
+  }
+  version {
+    instance_template = google_compute_instance_template.instance_template_1.self_link
+  }
+  version {
+    instance_template = google_compute_instance_template.instance_template_2.self_link
   }
 
   named_port {
