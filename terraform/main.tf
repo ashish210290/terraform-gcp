@@ -218,6 +218,20 @@ resource "google_compute_instance" "disk-formatter" {
     EOF
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOC
+      set -ex
+      while ! gcloud compute instances describe format-instance --zone your-zone --format='get(status)' | grep -q 'TERMINATED'; do
+        sleep 10
+      done
+      terraform destroy -target=google_compute_instance.disk-formatter -auto-approve
+    EOC
+  }
+
   ##depends_on = [ google_compute_region_disk.sftpgo-region-disk-'${count.index}' ]
 }
 
