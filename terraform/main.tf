@@ -249,7 +249,7 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk[0].self_link
+    source      = "google_compute_region_disk.sftpgo-region-disk[0].self_link"
     device_name = "sftpgo-region-disk-0"
     mode        = "rw"
     auto_delete = false
@@ -306,7 +306,7 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk[1].self_link
+    source      = "google_compute_region_disk.sftpgo-region-disk[1].self_link"
     device_name = "sftpgo-region-disk-1"
     mode        = "rw"
     auto_delete = false
@@ -363,7 +363,7 @@ resource "google_compute_instance_template" "instance_template_2" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk[2].self_link
+    source      = "google_compute_region_disk.sftpgo-region-disk[2].self_link"
     device_name = "regional-disk-2"
     mode        = "rw"
     auto_delete = false
