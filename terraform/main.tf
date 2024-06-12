@@ -250,7 +250,9 @@ resource "null_resource" "delete_disk_formatter" {
     instance_id = google_compute_instance.disk_formatter[count.index].id
   }
 
-  depends_on = [google_compute_instance.disk_formatter]
+  depends_on = [
+    google_compute_instance.disk_formatter
+  ]
 }
 
 
