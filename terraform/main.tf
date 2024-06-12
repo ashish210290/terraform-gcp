@@ -217,20 +217,7 @@ resource "google_compute_instance" "disk-formatter" {
       - sudo shutdown -h now
     EOF
   }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOC
-      set -ex
-      while ! gcloud compute instances describe format-instance --zone your-zone --format='get(status)' | grep -q 'TERMINATED'; do
-        sleep 10
-      done
-      terraform destroy -target=google_compute_instance.disk-formatter -auto-approve
-    EOC
-  }
+  
 
   ##depends_on = [ google_compute_region_disk.sftpgo-region-disk-'${count.index}' ]
 }
@@ -239,12 +226,31 @@ resource "null_resource" "wait_for_formatting" {
   count = 3
 
   depends_on = [
-    google_compute_instance.disk-formatter
+    google_compute_instance.disk_formatter
   ]
 
   provisioner "local-exec" {
     command = "echo Disk ${google_compute_region_disk.sftpgo-region-disk[count.index].name} has been formatted."
   }
+}
+
+resource "null_resource" "delete_disk_formatter" {
+  count = 3
+
+  provisioner "local-exec" {
+    command = <<-EOC
+      while [ $(gcloud compute instances describe disk-formatter-${count.index} --zone northamerica-northeast1-a --format="get(status)") != "TERMINATED" ]; do
+        sleep 10
+      done
+      gcloud compute instances delete disk-formatter-${count.index} --zone northamerica-northeast1-a --quiet
+    EOC
+  }
+
+  triggers = {
+    instance_id = google_compute_instance.disk_formatter[count.index].id
+  }
+
+  depends_on = [google_compute_instance.disk_formatter]
 }
 
 
