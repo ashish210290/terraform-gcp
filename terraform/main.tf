@@ -197,7 +197,7 @@ resource "google_compute_instance" "disk-formatter" {
   }
 
   attached_disk {
-    source = "google_compute_region_disk.disk-formatter${count.index}.id"
+    source = "google_compute_region_disk.sftpgo-region-disk${count.index}.id"
     device_name = "sftp-existing-disk"
   }
   network_interface {
