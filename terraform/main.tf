@@ -218,7 +218,7 @@ resource "google_compute_instance" "disk-formatter" {
     EOF
   }
 
-  depends_on = [ "google_compute_region_disk.sftpgo-region-disk-${count.index}" ]
+  ##depends_on = [ google_compute_region_disk.sftpgo-region-disk-'${count.index}' ]
 }
 
 resource "null_resource" "wait_for_formatting" {
