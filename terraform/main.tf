@@ -237,10 +237,7 @@ resource "null_resource" "delete_disk_formatter" {
 
   provisioner "local-exec" {
     command = <<-EOC
-      while [ $(gcloud compute instances describe disk-formatter-${count.index} --zone northamerica-northeast1-a --format="get(status)") != "TERMINATED" ]; do
-        sleep 10
-      done
-      gcloud compute instances delete disk-formatter-${count.index} --zone northamerica-northeast1-a --quiet
+      terraform apply && terraform destroy -target google_compute_instance.disk-formatter
     EOC
   }
 
