@@ -243,7 +243,7 @@ resource "null_resource" "wait_for_formatting" {
 
 
  ##Create an instance template
- 
+
 resource "google_compute_instance_template" "instance_template_0" {
   name           = "sftpgo-instance-template-0"
   machine_type   = "e2-micro"
@@ -429,9 +429,9 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   version {
     instance_template = google_compute_instance_template.instance_template_1.self_link
   }
-  version {
-    instance_template = google_compute_instance_template.instance_template_2.self_link
-  }
+  # version {
+  #   instance_template = google_compute_instance_template.instance_template_2.self_link
+  # }
 
   named_port {
     name = "http"
