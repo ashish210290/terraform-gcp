@@ -242,7 +242,8 @@ resource "null_resource" "wait_for_formatting" {
 # }
 
 
-Create an instance template
+ ##Create an instance template
+ 
 resource "google_compute_instance_template" "instance_template_0" {
   name           = "sftpgo-instance-template-0"
   machine_type   = "e2-micro"
