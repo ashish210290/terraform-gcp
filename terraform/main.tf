@@ -225,7 +225,7 @@ resource "google_compute_instance" "disk-formatter" {
 resource "null_resource" "wait_for_formatting" {
   count = 3
 
-  #depends_on = [ google_compute_instance.disk-formatter ]
+  # depends_on = [ google_compute_instance.disk-formatter ]
 
   provisioner "local-exec" {
     command = "echo Disk ${google_compute_region_disk.sftpgo-region-disk[count.index].name} has been formatted."
@@ -236,9 +236,7 @@ resource "null_resource" "delete_disk_formatter" {
   count = 3
 
   provisioner "local-exec" {
-    command = <<-EOC
-      terraform apply && terraform destroy -target google_compute_instance.disk-formatter
-    EOC
+    command = "terraform destroy -target=google_compute_instance.disk-formatter -auto-approve"
   }
 
   #depends_on = [ google_compute_instance.disk_formatter ] 
