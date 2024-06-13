@@ -226,7 +226,7 @@ resource "null_resource" "wait_for_formatting" {
   count = 3
 
   depends_on = [
-    google_compute_instance.disk_formatter
+    "google_compute_instance.disk-formatter"
   ]
 
   provisioner "local-exec" {
@@ -246,12 +246,8 @@ resource "null_resource" "delete_disk_formatter" {
     EOC
   }
 
-  triggers = {
-    instance_id = google_compute_instance.disk_formatter[count.index].id
-  }
-
   depends_on = [
-    google_compute_instance.disk_formatter
+    "google_compute_instance.disk_formatter"
   ]
 }
 
