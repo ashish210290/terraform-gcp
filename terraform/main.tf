@@ -225,22 +225,21 @@ resource "google_compute_instance" "disk-formatter" {
 resource "null_resource" "wait_for_formatting" {
   count = 3
 
-  # depends_on = [ google_compute_instance.disk-formatter ]
-
   provisioner "local-exec" {
     command = "echo Disk ${google_compute_region_disk.sftpgo-region-disk[count.index].name} has been formatted."
   }
+  depends_on = [ google_compute_instance.disk-formatter ]
 }
 
-resource "null_resource" "delete_disk_formatter" {
-  count = 3
+# resource "null_resource" "delete_disk_formatter" {
+#   count = 3
 
-  provisioner "local-exec" {
-    command = "terraform destroy -target=google_compute_instance.disk-formatter -auto-approve"
-  }
+#   provisioner "local-exec" {
+#     command = "terraform destroy -target=google_compute_instance.disk-formatter -auto-approve"
+#   }
 
-  #depends_on = [ google_compute_instance.disk_formatter ] 
-}
+#   #depends_on = [ google_compute_instance.disk_formatter ] 
+# }
 
 
 # Create an instance template
