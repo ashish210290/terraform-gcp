@@ -226,7 +226,7 @@ resource "google_compute_instance" "disk-formatter" {
 
 resource "google_compute_instance" "disk-formatter-deattach" {
   count = 3
-  name    = google_compute_instance.disk-formatter.name
+  name    = google_compute_instance.disk-formatter.name["${count.index}"]
   machine_type = google_compute_instance.disk-formatter.machine_type
   zone = google_compute_instance.disk-formatter.zone
   scheduling {
