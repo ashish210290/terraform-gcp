@@ -218,18 +218,17 @@ resource "google_compute_instance" "disk-formatter" {
       - sudo shutdown -h now
     EOF
   }
+  depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
   
-
-  ##depends_on = [ google_compute_region_disk.sftpgo-region-disk-'${count.index}' ]
 }
 
 # deattach regional disks from temporary disk-formatter instances
 
 resource "google_compute_instance" "disk-formatter-deattach" {
   count = 3
-  name    = "format-disk-instance-${count.index}"
-  machine_type = "n1-standard-1"
-  zone = "northamerica-northeast1-a"
+  name    = google_compute_instance.disk-formatter.name
+  machine_type = google_compute_instance.disk-formatter.machine_type
+  zone = google_compute_instance.disk-formatter.zone
   scheduling {
     preemptible       = true
     automatic_restart = false
@@ -238,12 +237,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
 
   boot_disk {
     auto_delete = true
-    initialize_params {
-    image = "cos-cloud/cos-113-lts"
-    size = 20
-    type = "pd-balanced"
-    }
-    mode = "READ_WRITE"
+    source =  google_compute_instance.disk-formatter.boot_disk["${count.index}"].source
   }
   network_interface {
    network = "default"
