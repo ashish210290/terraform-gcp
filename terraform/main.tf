@@ -226,9 +226,9 @@ resource "google_compute_instance" "disk-formatter" {
 
 resource "google_compute_instance" "disk-formatter-deattach" {
   count = 3
-  name    = google_compute_instance.disk-formatter.name["${count.index}"]
-  machine_type = google_compute_instance.disk-formatter.machine_type
-  zone = google_compute_instance.disk-formatter.zone
+  name    = "google_compute_instance.disk-formatter.format-disk-instance-${count.index}"
+  machine_type = google_compute_instance.disk-formatter.machine_type[count.index]
+  zone = google_compute_instance.disk-formatter.zone[count.index]
   scheduling {
     preemptible       = true
     automatic_restart = false
