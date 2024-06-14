@@ -242,7 +242,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
 
   boot_disk {
     auto_delete = true
-    source =  google_compute_instance.disk-formatter.boot_disk[count.index]
+    source =  google_compute_instance.disk-formatter.boot_disk[count.index].source
   }
   network_interface {
    network = "default"
