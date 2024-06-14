@@ -240,7 +240,7 @@ resource "null_resource" "wait_for_shutdown" {
 
 # deattach regional disks from temporary disk-formatter instances
 
-resource "google_compute_instance" "disk-formatter-deattach" {
+resource "google_compute_instance" "disk-formatter" {
   count = 3
   name    = google_compute_instance.disk-formatter[count.index].name
   machine_type = google_compute_instance.disk-formatter[count.index].machine_type
@@ -251,7 +251,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
   }
 
   network_interface {
-   network = "default"
+   network = "default" 
   }
 
   lifecycle {
