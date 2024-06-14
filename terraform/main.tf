@@ -266,7 +266,6 @@ resource "google_compute_instance" "disk-formatter-deattach" {
   depends_on = [ null_resource.wait_for_shutdown ]
 }
 
-
  ##Create an instance template
 
 resource "google_compute_instance_template" "instance_template_0" {
