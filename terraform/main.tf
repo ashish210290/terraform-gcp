@@ -241,7 +241,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
   }
 
   boot_disk {
-    source = google_compute_instance.disk-formatter[count.index].disk[0].source
+    source = google_compute_instance.disk-formatter[count.index].boot_disk[0].source
   }
 
   network_interface {
