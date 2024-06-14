@@ -196,10 +196,10 @@ resource "google_compute_instance" "disk-formatter" {
     mode = "READ_WRITE"
   }
 
-  attached_disk {
-    source = google_compute_region_disk.sftpgo-region-disk[count.index].id
-    device_name = "sftp-existing-disk"
-  }
+  # attached_disk {
+  #   source = google_compute_region_disk.sftpgo-region-disk[count.index].id
+  #   device_name = "sftp-existing-disk"
+  # }
   network_interface {
    network = "default"
   }
@@ -238,27 +238,27 @@ resource "null_resource" "wait_for_shutdown" {
 }
 
 
-# deattach regional disks from temporary disk-formatter instances
+# # deattach regional disks from temporary disk-formatter instances
 
-resource "google_compute_instance" "disk-formatter" {
-  count = 3
-  name    = google_compute_instance.disk-formatter[count.index].name
-  machine_type = google_compute_instance.disk-formatter[count.index].machine_type
-  zone = google_compute_instance.disk-formatter[count.index].zone
+# resource "google_compute_instance" "disk-formatter-deattach" {
+#   count = 3
+#   name    = google_compute_instance.disk-formatter[count.index].name
+#   machine_type = google_compute_instance.disk-formatter[count.index].machine_type
+#   zone = google_compute_instance.disk-formatter[count.index].zone
 
-  boot_disk {
-    source = google_compute_instance.disk-formatter[count.index].boot_disk[0].source
-  }
+#   boot_disk {
+#     source = google_compute_instance.disk-formatter[count.index].boot_disk[0].source
+#   }
 
-  network_interface {
-   network = "default" 
-  }
+#   network_interface {
+#    network = "default" 
+#   }
 
-  lifecycle {
-    prevent_destroy = false
-  }
-  depends_on = [ null_resource.wait_for_shutdown ]
-}
+#   lifecycle {
+#     prevent_destroy = false
+#   }
+#   depends_on = [ null_resource.wait_for_shutdown ]
+# }
 
 #  ##Create an instance template 0
 
