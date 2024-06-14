@@ -241,8 +241,15 @@ resource "google_compute_instance" "disk-formatter-deattach" {
   }
 
   boot_disk {
-    source =  google_compute_instance.disk-formatter.boot_disk[0].source
+    auto_delete = true
+    initialize_params {
+    image = "cos-cloud/cos-113-lts"
+    size = 20
+    type = "pd-balanced"
+    }
+    mode = "READ_WRITE"
   }
+  
   network_interface {
    network = "default"
   }
