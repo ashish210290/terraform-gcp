@@ -218,6 +218,11 @@ resource "google_compute_instance" "disk-formatter" {
       - sudo shutdown -h now
     EOF
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
   depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
   
 }
@@ -227,8 +232,8 @@ resource "google_compute_instance" "disk-formatter" {
 resource "google_compute_instance" "disk-formatter-deattach" {
   count = 3
   name    = "google_compute_instance.disk-formatter.format-disk-instance-${count.index}"
-  machine_type = google_compute_instance.disk-formatter.machine_type[count.index]
-  zone = google_compute_instance.disk-formatter.zone[count.index]
+  machine_type = "n1-standard-1"
+  zone = "northamerica-northeast1-a"
   scheduling {
     preemptible       = true
     automatic_restart = false
@@ -237,11 +242,16 @@ resource "google_compute_instance" "disk-formatter-deattach" {
 
   boot_disk {
     auto_delete = true
-    source =  google_compute_instance.disk-formatter.boot_disk["${count.index}"].source
+    source =  google_compute_instance.disk-formatter.boot_disk[count.index]
   }
   network_interface {
    network = "default"
   }
+
+  lifecycle {
+    prevent_destroy = false
+  }
+
   depends_on = [ google_compute_instance.disk-formatter ]
 }
 
