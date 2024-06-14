@@ -454,7 +454,6 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
     initial_delay_sec = 300
   }
 }
-
 resource "google_compute_health_check" "default" {
   name               = "health-check"
   check_interval_sec = 10
