@@ -444,6 +444,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   #   instance_template = google_compute_instance_template.instance_template_2.self_link
   # }
 
+
   named_port {
     name = "http"
     port = 8080
