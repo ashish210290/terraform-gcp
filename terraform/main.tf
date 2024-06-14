@@ -227,6 +227,17 @@ resource "google_compute_instance" "disk-formatter" {
   
 }
 
+# Wait for the temporary instance to shut down before detaching the disk
+resource "null_resource" "wait_for_shutdown" {
+  depends_on = [ google_compute_instance.disk-formatter ]
+
+  provisioner "local-exec" {
+    command = "sleep 5m"
+  }
+
+}
+
+
 # deattach regional disks from temporary disk-formatter instances
 
 resource "google_compute_instance" "disk-formatter-deattach" {
@@ -252,7 +263,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
     prevent_destroy = false
   }
 
-  depends_on = [ google_compute_instance.disk-formatter ]
+  depends_on = [ null_resource.wait_for_shutdown ]
 }
 
 
