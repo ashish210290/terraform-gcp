@@ -231,7 +231,7 @@ resource "google_compute_instance" "disk-formatter" {
 
 resource "google_compute_instance" "disk-formatter-deattach" {
   count = 3
-  name    = "google_compute_instance.disk-formatter.format-disk-instance-${count.index}"
+  name    = "google_compute_instance.disk-formatter.format-disk-instance[${count.index}]"
   machine_type = "n1-standard-1"
   zone = "northamerica-northeast1-a"
   scheduling {
@@ -249,7 +249,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
     }
     mode = "READ_WRITE"
   }
-  
+
   network_interface {
    network = "default"
   }
