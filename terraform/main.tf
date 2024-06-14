@@ -315,6 +315,7 @@ resource "google_compute_instance_template" "instance_template_0" {
   tags = ["http-server"]
 }
 
+
 # # Create an instance template
 # resource "google_compute_instance_template" "instance_template_1" {
 #   name           = "sftpgo-instance-template-1"
