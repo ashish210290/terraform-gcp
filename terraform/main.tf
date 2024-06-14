@@ -262,9 +262,9 @@ resource "google_compute_instance" "disk-formatter-deattach" {
   lifecycle {
     prevent_destroy = false
   }
-
   depends_on = [ null_resource.wait_for_shutdown ]
 }
+
 
 
 
