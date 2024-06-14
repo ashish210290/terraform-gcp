@@ -231,9 +231,9 @@ resource "google_compute_instance" "disk-formatter" {
 
 resource "google_compute_instance" "disk-formatter-deattach" {
   count = 3
-  name    = "google_compute_instance.disk-formatter.format-disk-instance[${count.index}]"
-  machine_type = "n1-standard-1"
-  zone = "northamerica-northeast1-a"
+  name    = google_compute_instance.disk-formatter[count.index].name
+  machine_type = google_compute_instance.disk-formatter[count.index].machine_type
+  zone = google_compute_instance.disk-formatter[count.index].zone
   scheduling {
     preemptible       = true
     automatic_restart = false
@@ -241,13 +241,7 @@ resource "google_compute_instance" "disk-formatter-deattach" {
   }
 
   boot_disk {
-    auto_delete = true
-    initialize_params {
-    image = "cos-cloud/cos-113-lts"
-    size = 20
-    type = "pd-balanced"
-    }
-    mode = "READ_WRITE"
+    source = google_compute_instance.disk-formatter[count.index].disk[0].source
   }
 
   network_interface {
