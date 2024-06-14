@@ -207,6 +207,7 @@ resource "google_compute_instance" "disk-formatter" {
   metadata = {
     user-data = <<-EOF
       #cloud-config
+
       bootcmd:
       - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
       - mkdir -p /mnt/disks/sftpgo
@@ -222,24 +223,33 @@ resource "google_compute_instance" "disk-formatter" {
   ##depends_on = [ google_compute_region_disk.sftpgo-region-disk-'${count.index}' ]
 }
 
-resource "null_resource" "wait_for_formatting" {
-  count = 3
+# deattach regional disks from temporary disk-formatter instances
 
-  provisioner "local-exec" {
-    command = "echo Disk ${google_compute_region_disk.sftpgo-region-disk[count.index].name} has been formatted."
+resource "google_compute_instance" "disk-formatter-deattach" {
+  count = 3
+  name    = "format-disk-instance-${count.index}"
+  machine_type = "n1-standard-1"
+  zone = "northamerica-northeast1-a"
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  boot_disk {
+    auto_delete = true
+    initialize_params {
+    image = "cos-cloud/cos-113-lts"
+    size = 20
+    type = "pd-balanced"
+    }
+    mode = "READ_WRITE"
+  }
+  network_interface {
+   network = "default"
   }
   depends_on = [ google_compute_instance.disk-formatter ]
 }
-
-# resource "null_resource" "delete_disk_formatter" {
-#   count = 3
-
-#   provisioner "local-exec" {
-#     command = "terraform destroy -target=google_compute_instance.disk-formatter -auto-approve"
-#   }
-
-#   #depends_on = [ google_compute_instance.disk_formatter ] 
-# }
 
 
  ##Create an instance template
@@ -272,6 +282,7 @@ resource "google_compute_instance_template" "instance_template_0" {
 
     user-data = <<-EOF
       #cloud-config
+      
       bootcmd:
       - mkdir -p /mnt/disks/sftpgo
       - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
@@ -300,119 +311,119 @@ resource "google_compute_instance_template" "instance_template_0" {
   tags = ["http-server"]
 }
 
-# Create an instance template
-resource "google_compute_instance_template" "instance_template_1" {
-  name           = "sftpgo-instance-template-1"
-  machine_type   = "e2-micro"
+# # Create an instance template
+# resource "google_compute_instance_template" "instance_template_1" {
+#   name           = "sftpgo-instance-template-1"
+#   machine_type   = "e2-micro"
 
   
-  disk {
-    auto_delete  = true
-    boot         = true
-    source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
-    disk_type = "pd-standard"
-    disk_size_gb = 20
-  }
+#   disk {
+#     auto_delete  = true
+#     boot         = true
+#     source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+#     disk_type = "pd-standard"
+#     disk_size_gb = 20
+#   }
 
-  disk {
-    source      = "${google_compute_region_disk.sftpgo-region-disk.1.self_link}"
-    device_name = "sftpgo-region-disk-1"
-    mode        = "rw"
-    auto_delete = false
-    boot = false
-  }
-  network_interface {
-    network = "default"
-  }
+#   disk {
+#     source      = "${google_compute_region_disk.sftpgo-region-disk.1.self_link}"
+#     device_name = "sftpgo-region-disk-1"
+#     mode        = "rw"
+#     auto_delete = false
+#     boot = false
+#   }
+#   network_interface {
+#     network = "default"
+#   }
 
-  metadata = {
+#   metadata = {
 
-    user-data = <<-EOF
-      #cloud-config
-      bootcmd:
-      - mkdir -p /mnt/disks/sftpgo
-      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
-      - chmod 777 /mnt/disks/sftpgo
-    EOF
-    gce-container-declaration = <<-EOF
-      spec:
-        containers:
-          - name: sftpgo
-            image: drakkan/sftpgo
-            volumeMounts:
-              - mountPath: /var/lib/sftpgo
-                name: sftpgo-vol
-        volumes:
-          - name: sftpgo-vol
-            hostPath:
-              path: /mnt/disks/sftpgo
-    EOF
-  }
+#     user-data = <<-EOF
+#       #cloud-config
+#       bootcmd:
+#       - mkdir -p /mnt/disks/sftpgo
+#       - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+#       - chmod 777 /mnt/disks/sftpgo
+#     EOF
+#     gce-container-declaration = <<-EOF
+#       spec:
+#         containers:
+#           - name: sftpgo
+#             image: drakkan/sftpgo
+#             volumeMounts:
+#               - mountPath: /var/lib/sftpgo
+#                 name: sftpgo-vol
+#         volumes:
+#           - name: sftpgo-vol
+#             hostPath:
+#               path: /mnt/disks/sftpgo
+#     EOF
+#   }
 
-  service_account {
-    email  = "default"
-    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-  }
+#   service_account {
+#     email  = "default"
+#     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+#   }
 
-  tags = ["http-server"]
-}
+#   tags = ["http-server"]
+# }
 
-# Create an instance template
-resource "google_compute_instance_template" "instance_template_2" {
-  name           = "sftpgo-instance-template-2"
-  machine_type   = "e2-micro"
+# # Create an instance template
+# resource "google_compute_instance_template" "instance_template_2" {
+#   name           = "sftpgo-instance-template-2"
+#   machine_type   = "e2-micro"
 
   
-  disk {
-    auto_delete  = true
-    boot         = true
-    source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
-    disk_type = "pd-standard"
-    disk_size_gb = 20
-  }
+#   disk {
+#     auto_delete  = true
+#     boot         = true
+#     source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+#     disk_type = "pd-standard"
+#     disk_size_gb = 20
+#   }
 
-  disk {
-    source      = "${google_compute_region_disk.sftpgo-region-disk.2.self_link}"
-    device_name = "regional-disk-2"
-    mode        = "rw"
-    auto_delete = false
-    boot = false
-  }
-  network_interface {
-    network = "default"
-  }
+#   disk {
+#     source      = "${google_compute_region_disk.sftpgo-region-disk.2.self_link}"
+#     device_name = "regional-disk-2"
+#     mode        = "rw"
+#     auto_delete = false
+#     boot = false
+#   }
+#   network_interface {
+#     network = "default"
+#   }
 
-  metadata = {
+#   metadata = {
 
-    user-data = <<-EOF
-      #cloud-config
-      bootcmd:
-      - mkdir -p /mnt/disks/sftpgo
-      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
-      - chmod 777 /mnt/disks/sftpgo
-    EOF
-    gce-container-declaration = <<-EOF
-      spec:
-        containers:
-          - name: sftpgo
-            image: drakkan/sftpgo
-            volumeMounts:
-              - mountPath: /var/lib/sftpgo
-                name: sftpgo-vol
-        volumes:
-          - name: sftpgo-vol
-            hostPath:
-              path: /mnt/disks/sftpgo
-    EOF
-  }
+#     user-data = <<-EOF
+#       #cloud-config
+#       bootcmd:
+#       - mkdir -p /mnt/disks/sftpgo
+#       - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
+#       - chmod 777 /mnt/disks/sftpgo
+#     EOF
+#     gce-container-declaration = <<-EOF
+#       spec:
+#         containers:
+#           - name: sftpgo
+#             image: drakkan/sftpgo
+#             volumeMounts:
+#               - mountPath: /var/lib/sftpgo
+#                 name: sftpgo-vol
+#         volumes:
+#           - name: sftpgo-vol
+#             hostPath:
+#               path: /mnt/disks/sftpgo
+#     EOF
+#   }
 
-  service_account {
-    email  = "default"
-    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-  }
+#   service_account {
+#     email  = "default"
+#     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+#   }
 
-  tags = ["http-server"]
-}
+#   tags = ["http-server"]
+# }
 
 
 # Create a managed instance group for sftpgo
