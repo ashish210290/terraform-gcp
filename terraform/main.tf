@@ -251,13 +251,13 @@ resource "google_compute_instance_template" "instance_template_1" {
     disk_size_gb = 20
   }
 
-  # disk {
-  #   source      = "${google_compute_region_disk.sftpgo-region-disk.1.self_link}"
-  #   device_name = "sftpgo-region-disk-1"
-  #   mode        = "rw"
-  #   auto_delete = false
-  #   boot = false
-  # }
+  disk {
+    source      = "${google_compute_region_disk.sftpgo-region-disk.1.self_link}"
+    device_name = "sftpgo-region-disk-1"
+    mode        = "rw"
+    auto_delete = false
+    boot = false
+  }
   network_interface {
     network = "default"
   }
@@ -391,19 +391,19 @@ resource "google_compute_health_check" "default" {
   }
 }
 
-data "google_compute_instance_group" "mig"{
-  name = google_compute_instance_group_manager.instance-group-manager.name
-  zone = "northamerica-northeast1-a"
-  project  = "divine-energy-253221"
-}
+# data "google_compute_instance_group" "mig"{
+#   name = google_compute_instance_group_manager.instance-group-manager.name
+#   zone = "northamerica-northeast1-a"
+#   project  = "divine-energy-253221"
+# }
 
-data "google_compute_instance" "mig-instances" {
-  count = length(google_compute_instance_group.mig.instances)
-  self_link = data.google_compute_instance_group.mig.instances[count.index  ]
+# data "google_compute_instance" "mig-instances" {
+#   count = length(google_compute_instance_group.mig.instances)
+#   self_link = data.google_compute_instance_group.mig.instances[count.index  ]
   
-}
-resource "google_compute_attached_disk" "attach_regional_disk" {
-  count = length(google_compute_instance.mig-instances)
-  instance = data.google_compute_instance_group.mig[count.index].name
-  disk =  google_compute_region_disk.sftpgo-region-disk[count.index].id 
-}
+# }
+# resource "google_compute_attached_disk" "attach_regional_disk" {
+#   count = length(google_compute_instance.mig-instances)
+#   instance = data.google_compute_instance_group.mig[count.index].name
+#   disk =  google_compute_region_disk.sftpgo-region-disk[count.index].id 
+# }
