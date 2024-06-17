@@ -11,63 +11,63 @@ provider "google-beta" {
   project = var.project_id
   region = "northamerica-northeast1"
 }
-resource "google_cloudbuild_trigger" "test" {
-     provider = google-beta
-     project = "divine-energy-253221"
-     name = "Terraform-plan-${var.env}"
-     description = "A trigger to push to any branch"
+# resource "google_cloudbuild_trigger" "test" {
+#      provider = google-beta
+#      project = "divine-energy-253221"
+#      name = "Terraform-plan-${var.env}"
+#      description = "A trigger to push to any branch"
 
-    github {
-      name = "terraform-gcp"
-      owner = "ashish210290"
-      push {
-        branch = "^main$"
-      }
-    }
-    filename = "cloud-build/tf-plan-project.yaml"
-    substitutions = {
-      _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
-      _TF_COMMAND = "plan"
-      _TF_OPTION = "-auto-approve"
-      _VAR_FILES = "../tfvars/pr.tfvars"
-      _TF_EXTRA_OPTION = "-lock=false"
-    }
-    approval_config {
-      approval_required = false
-    }
-    included_files = ["terraform/**"]
-}
-
-
-# Create Trigger for terraform apply, approval required ##
+#     github {
+#       name = "terraform-gcp"
+#       owner = "ashish210290"
+#       push {
+#         branch = "^main$"
+#       }
+#     }
+#     filename = "cloud-build/tf-plan-project.yaml"
+#     substitutions = {
+#       _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
+#       _TF_COMMAND = "plan"
+#       _TF_OPTION = "-auto-approve"
+#       _VAR_FILES = "../tfvars/pr.tfvars"
+#       _TF_EXTRA_OPTION = "-lock=false"
+#     }
+#     approval_config {
+#       approval_required = false
+#     }
+#     included_files = ["terraform/**"]
+# }
 
 
-resource "google_cloudbuild_trigger" "trigger-apply" {
-     provider = google-beta
-     project = "divine-energy-253221"
-     name = "Terraform-apply-${var.env}"
-     description = "A trigger to apply terraform on git push to main"
+# # Create Trigger for terraform apply, approval required ##
 
-    github {
-      name = "terraform-gcp"
-      owner = "ashish210290"
-      push {
-        branch = "^${var.data_platform_ops_br}$"
-      }
-    }
-    filename = "cloud-build/tf-apply-project.yaml"
-    substitutions = {
-      _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
-      _TF_COMMAND = "apply"
-      _TF_OPTION = "-auto-approve"
-      _VAR_FILES = "../tfvars/pr.tfvars"
-      _TF_EXTRA_OPTION = "-lock=false"
-    }
-    approval_config {
-      approval_required = true
-    }
-    included_files = ["terraform/**"]
-}
+
+# resource "google_cloudbuild_trigger" "trigger-apply" {
+#      provider = google-beta
+#      project = "divine-energy-253221"
+#      name = "Terraform-apply-${var.env}"
+#      description = "A trigger to apply terraform on git push to main"
+
+#     github {
+#       name = "terraform-gcp"
+#       owner = "ashish210290"
+#       push {
+#         branch = "^${var.data_platform_ops_br}$"
+#       }
+#     }
+#     filename = "cloud-build/tf-apply-project.yaml"
+#     substitutions = {
+#       _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
+#       _TF_COMMAND = "apply"
+#       _TF_OPTION = "-auto-approve"
+#       _VAR_FILES = "../tfvars/pr.tfvars"
+#       _TF_EXTRA_OPTION = "-lock=false"
+#     }
+#     approval_config {
+#       approval_required = true
+#     }
+#     included_files = ["terraform/**"]
+# }
 
 resource "google_monitoring_alert_policy" "test_alert_policy_name" {
   
@@ -378,18 +378,18 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
     initial_delay_sec = 300
   }
 }
-resource "google_compute_health_check" "default" {
-  name               = "health-check"
-  check_interval_sec = 10
-  timeout_sec        = 5
-  healthy_threshold  = 3
-  unhealthy_threshold = 3
+# resource "google_compute_health_check" "default" {
+#   name               = "health-check"
+#   check_interval_sec = 10
+#   timeout_sec        = 5
+#   healthy_threshold  = 3
+#   unhealthy_threshold = 3
 
-  http_health_check {
-    port_specification = "USE_SERVING_PORT"
-    request_path       = "/"
-  }
-}
+#   http_health_check {
+#     port_specification = "USE_SERVING_PORT"
+#     request_path       = "/"
+#   }
+# }
 
 # data "google_compute_instance_group" "mig"{
 #   name = google_compute_instance_group_manager.instance-group-manager.name
