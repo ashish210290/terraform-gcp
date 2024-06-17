@@ -378,18 +378,18 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
     initial_delay_sec = 300
   }
 }
-# resource "google_compute_health_check" "default" {
-#   name               = "health-check"
-#   check_interval_sec = 10
-#   timeout_sec        = 5
-#   healthy_threshold  = 3
-#   unhealthy_threshold = 3
+resource "google_compute_health_check" "default" {
+  name               = "health-check"
+  check_interval_sec = 10
+  timeout_sec        = 5
+  healthy_threshold  = 3
+  unhealthy_threshold = 3
 
-#   http_health_check {
-#     port_specification = "USE_SERVING_PORT"
-#     request_path       = "/"
-#   }
-# }
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+    request_path       = "/"
+  }
+}
 
 # data "google_compute_instance_group" "mig"{
 #   name = google_compute_instance_group_manager.instance-group-manager.name
