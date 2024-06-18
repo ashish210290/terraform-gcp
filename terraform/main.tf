@@ -422,8 +422,8 @@ resource "google_compute_health_check" "default" {
   unhealthy_threshold = 3
 
   http_health_check {
-    port_specification = "USE_SERVING_PORT"
-    request_path       = "/"
+    port = "8080"
+    request_path       = "/web"
   }
 }
 
