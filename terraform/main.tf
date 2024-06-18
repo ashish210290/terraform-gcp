@@ -320,7 +320,7 @@ resource "google_compute_instance_template" "instance_template_1" {
   tags = ["http-server"]
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = false
   }
 }
 
