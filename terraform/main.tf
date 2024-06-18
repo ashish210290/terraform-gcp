@@ -289,17 +289,14 @@ resource "google_compute_instance_template" "instance_template_1" {
            DISK_DEVICE="/dev/sdb"
            MOUNT_POINT="/mnt/disk/sftpfo"
            
-           # Check if the disk is already formatted
-           if ! blkid | grep -q ${DISK_DEVICE}; then
-             # Format the disk to ext4
-             sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard ${DISK_DEVICE}
-           fi
+          if ! blkid | grep -q "${DISK_DEVICE}"; then
+             
+            mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "${DISK_DEVICE}"
+          fi
            
-           # Create mount point if it doesn't exist
-           mkdir -p ${MOUNT_POINT}
+          mkdir -p "${MOUNT_POINT}"
            
-           # Mount the disk
-           sudo mount -o discard,defaults  ${DISK_DEVICE} ${MOUNT_POINT}
+          mount -o discard,defaults  "${DISK_DEVICE}" "${MOUNT_POINT}"
     EOF 
   }
 
