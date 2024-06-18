@@ -291,12 +291,12 @@ resource "google_compute_instance_template" "instance_template_1" {
           
         if ! blkid | grep -q "/dev/sdb";
         then   
-          mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/sdb"
+          mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/disk/by-id/google-sftpgo-region-disk-1"
         fi
           
         mkdir -p "/mnt/disk/sftpgo"
           
-        mount -o discard,defaults  "/dev/sdb" "/mnt/disk/sftpgo"
+        mount -o discard,defaults  "/dev/disk/by-id/google-sftpgo-region-disk-1" "/mnt/disk/sftpgo"
     EOF 
   }
 
