@@ -257,7 +257,7 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk.["${count.index}"].self_link
+    source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
     device_name = "sftpgo-region-disk-${count.index}"
     mode        = "rw"
     auto_delete = false
