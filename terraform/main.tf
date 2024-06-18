@@ -262,9 +262,6 @@ resource "google_compute_instance_template" "instance_template_1" {
     mode        = "rw"
     auto_delete = false
     boot = false
-    labels = {
-      "app" = "sftpgo"
-    }
   }
   network_interface {
     network = "default"
