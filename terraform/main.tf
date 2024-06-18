@@ -240,7 +240,7 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
 # Create an instance template
 resource "google_compute_instance_template" "instance_template_1" {
   #count = 3
-  name           = "sftpgo-instance-template-1"
+  name_prefix           = "sftpgo-instance-template-"
   machine_type   = "e2-micro"
 
   scheduling {
