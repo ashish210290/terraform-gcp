@@ -318,6 +318,10 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   tags = ["http-server"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # resource "google_compute_attached_disk" "attach_regional_disk" {
