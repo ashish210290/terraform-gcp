@@ -390,7 +390,7 @@ resource "google_compute_instance_template" "instance_template_1" {
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
   count = 3
-  name = "sftp-instance-group-manager"
+  name = "sftp-instance-group-manager-${count.index}"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 3
