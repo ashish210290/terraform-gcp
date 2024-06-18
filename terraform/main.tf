@@ -391,14 +391,13 @@ resource "google_compute_instance_template" "instance_template_1" {
 # Create a managed instance group for sftpgo
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
-  count = 3
   name = "sftp-instance-group-manager"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
-  target_size = 1
+  target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[count.index].self_link
+    instance_template = google_compute_instance_template.instance_template_1.self_link
   }
  
   named_port {
