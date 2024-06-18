@@ -243,7 +243,11 @@ resource "google_compute_instance_template" "instance_template_1" {
   name           = "sftpgo-instance-template-1"
   machine_type   = "e2-micro"
 
-  
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "MIGRATE"
+  }
+    
   disk {
     auto_delete  = true
     boot         = true
@@ -258,6 +262,9 @@ resource "google_compute_instance_template" "instance_template_1" {
     mode        = "rw"
     auto_delete = false
     boot = false
+    labels = {
+      "app" = "sftpgo"
+    }
   }
   network_interface {
     network = "default"
@@ -287,16 +294,16 @@ resource "google_compute_instance_template" "instance_template_1" {
       - |
         #!/bin/bash
         DISK_DEVICE="/dev/sdb"
-        MOUNT_POINT="/mnt/disk/sftpgo"
+        MOUNT_POINT="/mnt/disks/sftpgo"
           
         if ! blkid | grep -q "/dev/sdb";
         then   
-          mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/disk/by-id/google-sftpgo-region-disk-1"
+          mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/sdb"
         fi
           
-        mkdir -p "/mnt/disk/sftpgo"
+        mkdir -p "/mnt/disks/sftpgo"
           
-        mount -o discard,defaults  "/dev/disk/by-id/google-sftpgo-region-disk-1" "/mnt/disk/sftpgo"
+        mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
     EOF 
   }
 
