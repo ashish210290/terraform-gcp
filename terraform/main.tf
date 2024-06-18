@@ -397,7 +397,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1.self_link
+    instance_template = google_compute_instance_template.instance_template_1.id
   }
  
   named_port {
