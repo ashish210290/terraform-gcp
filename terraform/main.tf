@@ -167,75 +167,79 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
 }
 
 
-# Verify that disk is created correctly.
+# # Verify that disk is created correctly.
 
-output "sftpgo-region-disk" {
-  value = google_compute_region_disk.sftpgo-region-disk
-}
+# output "sftpgo-region-disk" {
+#   value = google_compute_region_disk.sftpgo-region-disk
+# }
 
-# Create a compute instance to just to formart the regional disk 
+# # Create a compute instance to just to formart the regional disk 
 
-resource "google_compute_instance" "disk-formatter" {
-  count = 3
-  name    = "format-disk-instance-${count.index}"
-  machine_type = "n1-standard-1"
-  zone = "northamerica-northeast1-a"
-  scheduling {
-    preemptible       = true
-    automatic_restart = false
-    on_host_maintenance = "TERMINATE"
-  }
+# resource "google_compute_instance" "disk-formatter" {
+#   count = 3
+#   name    = "format-disk-instance-${count.index}"
+#   machine_type = "n1-standard-1"
+#   zone = "northamerica-northeast1-a"
+#   scheduling {
+#     preemptible       = true
+#     automatic_restart = false
+#     on_host_maintenance = "TERMINATE"
+#   }
 
-  boot_disk {
-    auto_delete = true
-    initialize_params {
-    image = "cos-cloud/cos-113-lts"
-    size = 20
-    type = "pd-balanced"
-    }
-    mode = "READ_WRITE"
-  }
+#   boot_disk {
+#     auto_delete = true
+#     initialize_params {
+#     image = "cos-cloud/cos-113-lts"
+#     size = 20
+#     type = "pd-balanced"
+#     }
+#     mode = "READ_WRITE"
+#   }
 
-  attached_disk {
-    source = google_compute_region_disk.sftpgo-region-disk[count.index].id
-    device_name = "sftp-existing-disk"
-  }
-  network_interface {
-   network = "default"
-  }
+#   attached_disk {
+#     source = google_compute_region_disk.sftpgo-region-disk[count.index].id
+#     device_name = "sftp-existing-disk"
+#   }
+#   network_interface {
+#    network = "default"
+#   }
 
-  metadata = {
-    user-data = <<-EOF
-      #cloud-config
+#   metadata = {
+#     user-data = <<-EOF
+#       #cloud-config
 
-      bootcmd:
-      - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
-      - spleep 60
-      - echo "Tasks are completed. Shutting down."
-      - sudo shutdown -h now
-    EOF
-  }
+#       bootcmd:
+#       - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+#       - spleep 60
+#       - echo "Tasks are completed. Shutting down."
+#       - sudo shutdown -h now
+#     EOF
+#   }
 
-  lifecycle {
-    ignore_changes = [ attached_disk ]
-  }
+#   lifecycle {
+#     ignore_changes = [ attached_disk ]
+#   }
 
-  depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
+#   depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
   
-}
+# }
 
-# Wait for the temporary instance to shut down before detaching the disk
-resource "null_resource" "wait_for_shutdown" {
-  depends_on = [ google_compute_instance.disk-formatter ]
 
-  provisioner "local-exec" {
-    command = "sleep 2m"
-  }
 
-}
+
+# # Wait for the temporary instance to shut down before detaching the disk
+# resource "null_resource" "wait_for_shutdown" {
+#   depends_on = [ google_compute_instance.disk-formatter ]
+
+#   provisioner "local-exec" {
+#     command = "sleep 2m"
+#   }
+
+# }
 
 # Create an instance template
 resource "google_compute_instance_template" "instance_template_1" {
+  count = 3
   name           = "sftpgo-instance-template-1"
   machine_type   = "e2-micro"
 
@@ -249,8 +253,8 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   disk {
-    source      = "${google_compute_region_disk.sftpgo-region-disk.1.self_link}"
-    device_name = "sftpgo-region-disk-1"
+    source      = google_compute_region_disk.sftpgo-region-disk[count.index].self_link
+    device_name = "sftpgo-region-disk-${count.index}"
     mode        = "rw"
     auto_delete = false
     boot = false
@@ -264,14 +268,6 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   metadata = {
-
-    user-data = <<-EOF
-      #cloud-config
-      bootcmd:
-      - mkdir -p /mnt/disks/sftpgo
-      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
-      - chmod 777 /mnt/disks/sftpgo
-    EOF
     gce-container-declaration = <<-EOF
       spec:
         containers:
@@ -285,6 +281,36 @@ resource "google_compute_instance_template" "instance_template_1" {
             hostPath:
               path: /mnt/disks/sftpgo
     EOF
+    user-data = <<-EOF
+      #cloud-config
+      write_files:
+        - path: /tmp/format-mount.sh
+          content: |
+            #!/bin/bash
+            DISK_DEVICE="/dev/sdb"
+            MOUNT_POINT="/mnt/disk/sftpfo"
+            
+            # Check if the disk is already formatted
+            if ! blkid | grep -q ${DISK_DEVICE}; then
+              # Format the disk to ext4
+              sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard ${DISK_DEVICE}
+            fi
+            
+            # Create mount point if it doesn't exist
+            mkdir -p ${MOUNT_POINT}
+            
+            # Mount the disk
+            sudo mount -o discard,defaults  ${DISK_DEVICE} ${MOUNT_POINT}
+            
+            
+            # Clean up
+            rm -f /tmp/format-mount.sh
+      runcmd:
+        - chmod +x /tmp/format-mount.sh
+        - /tmp/format-mount.sh
+  
+    EOF
+    
   }
 
   service_account {
@@ -371,9 +397,6 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
     instance_template = google_compute_instance_template.instance_template_1.self_link
   }
  
-  
-
-
   named_port {
     name = "http"
     port = 8080
