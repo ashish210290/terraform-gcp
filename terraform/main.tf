@@ -397,8 +397,13 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   }
  
   named_port {
-    name = "http"
+    name = "http-sftp"
     port = 8080
+  }
+
+  named_port {
+    name = "ssh-sftpgo"
+    port = 2022
   }
 
   auto_healing_policies {
