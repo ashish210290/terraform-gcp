@@ -289,8 +289,8 @@ resource "google_compute_instance_template" "instance_template_1" {
            DISK_DEVICE="/dev/sdb"
            MOUNT_POINT="/mnt/disk/sftpfo"
            
-          if ! blkid | grep -q "${DISK_DEVICE}"; then
-             
+          if [ ! blkid | grep -q "${DISK_DEVICE}" ]
+          then   
             mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "${DISK_DEVICE}"
           fi
            
