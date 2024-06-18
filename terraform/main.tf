@@ -301,6 +301,14 @@ resource "google_compute_instance_template" "instance_template_1" {
         mkdir -p "/mnt/disks/sftpgo"
           
         mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
+        
+        chmod 777 /mnt/disks/sftpgo
+
+      bootcmd:
+      - mkdir -p "/mnt/disks/sftpgo" 
+      - mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
+      - chmod 777 /mnt/disks/sftpgo
+
     EOF 
   }
 
