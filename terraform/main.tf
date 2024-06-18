@@ -283,9 +283,8 @@ resource "google_compute_instance_template" "instance_template_1" {
     EOF
     user-data = <<-EOF
       #cloud-config
-      write_files:
-      - path: /tmp/format-mount.sh
-        content: |
+      runcmd:
+        - |
            #!/bin/bash
            DISK_DEVICE="/dev/sdb"
            MOUNT_POINT="/mnt/disk/sftpfo"
@@ -301,12 +300,6 @@ resource "google_compute_instance_template" "instance_template_1" {
            
            # Mount the disk
            sudo mount -o discard,defaults  ${DISK_DEVICE} ${MOUNT_POINT}
-             
-           # Clean up
-            rm -f /tmp/format-mount.sh
-      runcmd:
-      - chmod +x /tmp/format-mount.sh
-      - /tmp/format-mount.sh
     EOF 
   }
 
