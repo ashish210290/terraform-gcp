@@ -239,7 +239,7 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
 
 # Create an instance template
 resource "google_compute_instance_template" "instance_template_1" {
-  count = 3
+  #count = 3
   name_prefix           = "sftpgo-instance-template-"
   machine_type   = "e2-micro"
 
@@ -257,8 +257,10 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
-    device_name = "sftpgo-region-disk-${count.index}"
+    #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
+    source      = google_compute_region_disk.sftpgo-region-disk.1.self_link
+    #device_name = "sftpgo-region-disk-${count.index}"
+    device_name = "sftpgo-region-disk-1"
     mode        = "rw"
     auto_delete = false
     boot = false
@@ -394,7 +396,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   name = "sftp-instance-group-manager"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
-  target_size = 3
+  target_size = 2
 
   version {
     instance_template = google_compute_instance_template.instance_template_1.self_link
