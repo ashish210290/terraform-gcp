@@ -391,6 +391,7 @@ resource "google_compute_instance_template" "instance_template_1" {
 # Create a managed instance group for sftpgo
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
+  count = 3
   name = "sftp-instance-group-manager"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
