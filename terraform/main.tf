@@ -287,16 +287,16 @@ resource "google_compute_instance_template" "instance_template_1" {
         - |
            #!/bin/bash
            DISK_DEVICE="/dev/sdb"
-           MOUNT_POINT="/mnt/disk/sftpfo"
+           MOUNT_POINT="/mnt/disk/sftpgo"
            
-          if [ ! blkid | grep -q "${DISK_DEVICE}" ]
+          if [ ! blkid | grep -q "/dev/sdb" ]
           then   
-            mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "${DISK_DEVICE}"
+            mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/sdb"
           fi
            
-          mkdir -p "${MOUNT_POINT}"
+          mkdir -p "/mnt/disk/sftpgo"
            
-          mount -o discard,defaults  "${DISK_DEVICE}" "${MOUNT_POINT}"
+          mount -o discard,defaults  "/dev/sdb" "/mnt/disk/sftpgo"
     EOF 
   }
 
