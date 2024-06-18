@@ -210,9 +210,6 @@ resource "google_compute_instance" "disk-formatter" {
 
       bootcmd:
       - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
-      - mkdir -p /mnt/disks/sftpgo
-      - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
-      - chmod 777 /mnt/disks/sftpgo
       - spleep 60
       - echo "Tasks are completed. Shutting down."
       - sudo shutdown -h now
@@ -260,6 +257,10 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
   network_interface {
     network = "default"
+
+    access_config {
+      
+    }
   }
 
   metadata = {
@@ -293,6 +294,12 @@ resource "google_compute_instance_template" "instance_template_1" {
 
   tags = ["http-server"]
 }
+
+# resource "google_compute_attached_disk" "attach_regional_disk" {
+#   count = 3
+#   disk = google_compute_region_disk.sftpgo-region-disk[count.index].self_link
+#   instance =   google_compute_instance.disk-formatter[count.index].name
+# }
 
 # # Create an instance template
 # resource "google_compute_instance_template" "instance_template_2" {
@@ -363,9 +370,8 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   version {
     instance_template = google_compute_instance_template.instance_template_1.self_link
   }
-  # version {
-  #   instance_template = google_compute_instance_template.instance_template_2.self_link
-  # }
+ 
+  
 
 
   named_port {
