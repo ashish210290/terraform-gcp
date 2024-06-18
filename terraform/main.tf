@@ -284,33 +284,30 @@ resource "google_compute_instance_template" "instance_template_1" {
     user-data = <<-EOF
       #cloud-config
       write_files:
-        - path: /tmp/format-mount.sh
-          content: |
-            #!/bin/bash
-            DISK_DEVICE="/dev/sdb"
-            MOUNT_POINT="/mnt/disk/sftpfo"
-            
-            # Check if the disk is already formatted
-            if ! blkid | grep -q ${DISK_DEVICE}; then
-              # Format the disk to ext4
-              sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard ${DISK_DEVICE}
-            fi
-            
-            # Create mount point if it doesn't exist
-            mkdir -p ${MOUNT_POINT}
-            
-            # Mount the disk
-            sudo mount -o discard,defaults  ${DISK_DEVICE} ${MOUNT_POINT}
-            
-            
-            # Clean up
+      - path: /tmp/format-mount.sh
+        content: |
+           #!/bin/bash
+           DISK_DEVICE="/dev/sdb"
+           MOUNT_POINT="/mnt/disk/sftpfo"
+           
+           # Check if the disk is already formatted
+           if ! blkid | grep -q ${DISK_DEVICE}; then
+             # Format the disk to ext4
+             sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard ${DISK_DEVICE}
+           fi
+           
+           # Create mount point if it doesn't exist
+           mkdir -p ${MOUNT_POINT}
+           
+           # Mount the disk
+           sudo mount -o discard,defaults  ${DISK_DEVICE} ${MOUNT_POINT}
+             
+           # Clean up
             rm -f /tmp/format-mount.sh
       runcmd:
-        - chmod +x /tmp/format-mount.sh
-        - /tmp/format-mount.sh
-  
-    EOF
-    
+      - chmod +x /tmp/format-mount.sh
+      - /tmp/format-mount.sh
+    EOF 
   }
 
   service_account {
