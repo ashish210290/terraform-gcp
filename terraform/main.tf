@@ -395,11 +395,11 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   target_size = 2
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[0].self_link
+    instance_template = google_compute_instance_template.instance_template_1[0].id
   }
  
   version {
-    instance_template = google_compute_instance_template.instance_template_1[1].self_link
+    instance_template = google_compute_instance_template.instance_template_1[1].id
   }
 
   # version {
