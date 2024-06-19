@@ -268,6 +268,10 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
   network_interface {
     network = "default"
+
+    access_config {
+      
+    }
   }
 
   metadata = {
@@ -353,6 +357,9 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
   network_interface {
     network = "default"
+    access_config {
+      
+    }
   }
 
   metadata = {
@@ -415,10 +422,10 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
     port = 2022
   }
 
-  auto_healing_policies {
-    health_check      = google_compute_health_check.default.self_link
-    initial_delay_sec = 300
-  }
+  # auto_healing_policies {
+  #   health_check      = google_compute_health_check.default.self_link
+  #   initial_delay_sec = 300
+  # }
 }
 
 # Create a managed instance group for sftpgo
@@ -443,10 +450,10 @@ resource "google_compute_instance_group_manager" "instance-group-manager-1" {
     port = 2022
   }
 
-  auto_healing_policies {
-    health_check      = google_compute_health_check.default.self_link
-    initial_delay_sec = 300
-  }
+  # auto_healing_policies {
+  #   health_check      = google_compute_health_check.default.self_link
+  #   initial_delay_sec = 300
+  # }
 }
 
 resource "google_compute_health_check" "default" {
