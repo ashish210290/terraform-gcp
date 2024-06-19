@@ -262,7 +262,7 @@ resource "google_compute_instance_template" "instance_template_0" {
     source      = google_compute_region_disk.sftpgo-region-disk.id
     #device_name = "sftpgo-region-disk-${count.index}"
     device_name = "sftpgo-region-disk-1"
-    mode        = "rw"
+    mode        = "READ_WRITE"
     auto_delete = false
     boot = false
   }
@@ -351,7 +351,7 @@ resource "google_compute_instance_template" "instance_template_1" {
     source      = google_compute_region_disk.sftpgo-region-disk.id
     #device_name = "sftpgo-region-disk-${count.index}"
     device_name = "sftpgo-region-disk-1"
-    #mode        = "READ_ONLY"
+    mode        = "READ_ONLY"
     auto_delete = false
     boot = false
   }
