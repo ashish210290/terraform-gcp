@@ -154,12 +154,13 @@ provider "google" {
 }
 
 resource "google_compute_region_disk" "sftpgo-region-disk" {
-  count = 3
-  name = "sftpgo-region-disk-${count.index}"
+  #count = 3
+  #name = "sftpgo-region-disk-${count.index}"
+  name = "sftpgo-region-disk-1"
   region = "northamerica-northeast1"
   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
   size = 10
-  type = "pd-balanced"
+  type = "pd-ssd"
 
   labels = {
     environment = "non-prod"
@@ -238,8 +239,8 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
 # }
 
 # Create an instance template
-resource "google_compute_instance_template" "instance_template_1" {
-  count = 3
+resource "google_compute_instance_template" "instance_template_0" {
+  #count = 3
   name_prefix           = "sftpgo-instance-template-"
   machine_type   = "e2-micro"
 
@@ -257,10 +258,10 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 
   disk {
-    source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
-    #source      = google_compute_region_disk.sftpgo-region-disk.1.self_link
-    device_name = "sftpgo-region-disk-${count.index}"
-    #device_name = "sftpgo-region-disk-1"
+    #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
+    source      = google_compute_region_disk.sftpgo-region-disk.1.self_link
+    #device_name = "sftpgo-region-disk-${count.index}"
+    device_name = "sftpgo-region-disk-1"
     mode        = "rw"
     auto_delete = false
     boot = false
@@ -322,90 +323,116 @@ resource "google_compute_instance_template" "instance_template_1" {
   }
 }
 
-# resource "google_compute_attached_disk" "attach_regional_disk" {
-#   count = 3
-#   disk = google_compute_region_disk.sftpgo-region-disk[count.index].self_link
-#   instance =   google_compute_instance.disk-formatter[count.index].name
-# }
+# Create an instance template
+resource "google_compute_instance_template" "instance_template_1" {
+  #count = 3
+  name_prefix           = "sftpgo-instance-template-"
+  machine_type   = "e2-micro"
 
-# # Create an instance template
-# resource "google_compute_instance_template" "instance_template_2" {
-#   name           = "sftpgo-instance-template-2"
-#   machine_type   = "e2-micro"
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "MIGRATE"
+  }
+    
+  disk {
+    auto_delete  = true
+    boot         = true
+    source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+    disk_type = "pd-standard"
+    disk_size_gb = 20
+  }
 
-  
-#   disk {
-#     auto_delete  = true
-#     boot         = true
-#     source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
-#     disk_type = "pd-standard"
-#     disk_size_gb = 20
-#   }
+  disk {
+    #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
+    source      = google_compute_region_disk.sftpgo-region-disk.1.self_link
+    #device_name = "sftpgo-region-disk-${count.index}"
+    device_name = "sftpgo-region-disk-1"
+    mode        = "READ_ONLY"
+    auto_delete = false
+    boot = false
+  }
+  network_interface {
+    network = "default"
+  }
 
-#   disk {
-#     source      = "${google_compute_region_disk.sftpgo-region-disk.2.self_link}"
-#     device_name = "regional-disk-2"
-#     mode        = "rw"
-#     auto_delete = false
-#     boot = false
-#   }
-#   network_interface {
-#     network = "default"
-#   }
+  metadata = {
+    gce-container-declaration = <<-EOF
+      spec:
+        containers:
+          - name: sftpgo
+            image: drakkan/sftpgo
+            volumeMounts:
+              - mountPath: /var/lib/sftpgo
+                name: sftpgo-vol
+        volumes:
+          - name: sftpgo-vol
+            hostPath:
+              path: /mnt/disks/sftpgo
+    EOF
+    user-data = <<-EOF
+      #cloud-config
 
-#   metadata = {
+      bootcmd:
+      - mkdir -p "/mnt/disks/sftpgo" 
+      - mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
+      - chmod 777 /mnt/disks/sftpgo
 
-#     user-data = <<-EOF
-#       #cloud-config
-#       bootcmd:
-#       - mkdir -p /mnt/disks/sftpgo
-#       - mount -o discard,defaults /dev/sdb /mnt/disks/sftpgo
-#       - chmod 777 /mnt/disks/sftpgo
-#     EOF
-#     gce-container-declaration = <<-EOF
-#       spec:
-#         containers:
-#           - name: sftpgo
-#             image: drakkan/sftpgo
-#             volumeMounts:
-#               - mountPath: /var/lib/sftpgo
-#                 name: sftpgo-vol
-#         volumes:
-#           - name: sftpgo-vol
-#             hostPath:
-#               path: /mnt/disks/sftpgo
-#     EOF
-#   }
+    EOF 
+  }
 
-#   service_account {
-#     email  = "default"
-#     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-#   }
+  service_account {
+    email  = "default"
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
 
-#   tags = ["http-server"]
-# }
+  tags = ["http-server"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 
 # Create a managed instance group for sftpgo
 
-resource "google_compute_instance_group_manager" "instance-group-manager" {
-  name = "sftp-instance-group-manager"
+resource "google_compute_instance_group_manager" "instance-group-manager-0" {
+  name = "sftp-instance-group-manager-0"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[0].id
+    instance_template = google_compute_instance_template.instance_template_0.id
   }
  
-  version {
-    instance_template = google_compute_instance_template.instance_template_1[1].id
+  named_port {
+    name = "http-sftp"
+    port = 8080
   }
 
-  # version {
-  #   instance_template = google_compute_instance_template.instance_template_1[2].self_link
-  # }
+  named_port {
+    name = "ssh-sftpgo"
+    port = 2022
+  }
 
+  auto_healing_policies {
+    health_check      = google_compute_health_check.default.self_link
+    initial_delay_sec = 300
+  }
+}
+
+# Create a managed instance group for sftpgo
+
+resource "google_compute_instance_group_manager" "instance-group-manager-1" {
+  name = "sftp-instance-group-manager-1"
+  base_instance_name = "sftp-instance"
+  zone = "northamerica-northeast1-a"
+  target_size = 1
+
+  version {
+    instance_template = google_compute_instance_template.instance_template_1.id
+  }
+ 
   named_port {
     name = "http-sftp"
     port = 8080
@@ -433,20 +460,3 @@ resource "google_compute_health_check" "default" {
     port = "8080"
   }
 }
-
-# data "google_compute_instance_group" "mig"{
-#   name = google_compute_instance_group_manager.instance-group-manager.name
-#   zone = "northamerica-northeast1-a"
-#   project  = "divine-energy-253221"
-# }
-
-# data "google_compute_instance" "mig-instances" {
-#   count = length(google_compute_instance_group.mig.instances)
-#   self_link = data.google_compute_instance_group.mig.instances[count.index  ]
-  
-# }
-# resource "google_compute_attached_disk" "attach_regional_disk" {
-#   count = length(google_compute_instance.mig-instances)
-#   instance = data.google_compute_instance_group.mig[count.index].name
-#   disk =  google_compute_region_disk.sftpgo-region-disk[count.index].id 
-# }
