@@ -242,7 +242,7 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
 resource "google_compute_instance_template" "instance_template_0" {
   #count = 3
   name_prefix           = "sftpgo-instance-template-"
-  machine_type   = "e2-micro"
+  machine_type   = "n2-standard-2"
 
   scheduling {
     automatic_restart   = true
@@ -331,7 +331,7 @@ resource "google_compute_instance_template" "instance_template_0" {
 resource "google_compute_instance_template" "instance_template_1" {
   #count = 3
   name_prefix           = "sftpgo-instance-template-"
-  machine_type   = "e2-micro"
+  machine_type   = "n2-standard-2"
 
   scheduling {
     automatic_restart   = true
