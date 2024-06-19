@@ -395,15 +395,15 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[1].id
+    instance_template = google_compute_instance_template.instance_template_1[0].id
   }
  
   version {
-    instance_template = google_compute_instance_template.instance_template_1[2].id
+    instance_template = google_compute_instance_template.instance_template_1[1].id
   }
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[3].id
+    instance_template = google_compute_instance_template.instance_template_1[2].id
   }
 
   named_port {
