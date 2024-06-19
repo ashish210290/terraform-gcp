@@ -401,12 +401,12 @@ resource "google_compute_instance_template" "instance_template_1" {
 
 resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   name = "sftp-instance-group-manager-0"
-  base_instance_name = "sftp-instance"
+  base_instance_name = "sftp-instance-rw"
   zone = "northamerica-northeast1-a"
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_0.id
+    instance_template = google_compute_instance_template.instance_template_0.self_link
   }
  
   named_port {
@@ -429,12 +429,12 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 
 resource "google_compute_instance_group_manager" "instance-group-manager-1" {
   name = "sftp-instance-group-manager-1"
-  base_instance_name = "sftp-instance"
+  base_instance_name = "sftp-instance-ro"
   zone = "northamerica-northeast1-a"
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1.id
+    instance_template = google_compute_instance_template.instance_template_1.self_link
   }
  
   named_port {
@@ -447,6 +447,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-1" {
     port = 2022
   }
 
+  depends_on = [ google_compute_instance_group_manager.instance-group-manager-0 ]
   # auto_healing_policies {
   #   health_check      = google_compute_health_check.default.self_link
   #   initial_delay_sec = 300
