@@ -389,16 +389,23 @@ resource "google_compute_instance_template" "instance_template_1" {
 # Create a managed instance group for sftpgo
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
-  count = 3
-  name = "sftp-instance-group-manager-${count.index}"
+  name = "sftp-instance-group-manager"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[count.index].id
+    instance_template = google_compute_instance_template.instance_template_1[1].id
   }
  
+  version {
+    instance_template = google_compute_instance_template.instance_template_1[2].id
+  }
+
+  version {
+    instance_template = google_compute_instance_template.instance_template_1[3].id
+  }
+
   named_port {
     name = "http-sftp"
     port = 8080
@@ -414,16 +421,16 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
     initial_delay_sec = 300
   }
 }
+
 resource "google_compute_health_check" "default" {
   name               = "health-check"
-  check_interval_sec = 10
-  timeout_sec        = 5
+  check_interval_sec = 60
+  timeout_sec        = 10
   healthy_threshold  = 3
   unhealthy_threshold = 3
 
-  http_health_check {
+  tcp_health_check {
     port = "8080"
-    request_path       = "/web"
   }
 }
 
