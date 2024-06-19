@@ -395,16 +395,16 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   target_size = 1
 
   version {
-    instance_template = google_compute_instance_template.instance_template_1[0].id
+    instance_template = google_compute_instance_template.instance_template_1[0].self_link
   }
  
   version {
-    instance_template = google_compute_instance_template.instance_template_1[1].id
+    instance_template = google_compute_instance_template.instance_template_1[1].self_link
   }
 
-  version {
-    instance_template = google_compute_instance_template.instance_template_1[2].id
-  }
+  # version {
+  #   instance_template = google_compute_instance_template.instance_template_1[2].self_link
+  # }
 
   named_port {
     name = "http-sftp"
