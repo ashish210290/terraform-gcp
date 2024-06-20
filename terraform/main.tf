@@ -153,27 +153,27 @@ provider "google" {
   region =  var.region
 }
 
-# resource "google_compute_region_disk" "sftpgo-region-disk" {
-#   #count = 3
-#   #name = "sftpgo-region-disk-${count.index}"
-#   name = "sftpgo-region-disk-1"
-#   region = "northamerica-northeast1"
-#   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
-#   size = 10
-#   type = "pd-ssd"
-
-#   labels = {
-#     environment = "non-prod"
-#   }
-# }
-
-# Create Persistent disk 
-resource "google_compute_disk" "sftpgo-pd-disk-2" {
-  name = "sftpgo-pd-disk-2"
-  type = "pd-standard"
+resource "google_compute_region_disk" "sftpgo-region-disk" {
+  #count = 3
+  #name = "sftpgo-region-disk-${count.index}"
+  name = "sftpgo-region-disk"
+  region = "northamerica-northeast1"
+  replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
   size = 10
-  zone = "northamerica-northeast1-a"
+  type = "pd-ssd"
+
+  labels = {
+    environment = "non-prod"
+  }
 }
+
+# # Create Persistent disk 
+# resource "google_compute_disk" "sftpgo-pd-disk-2" {
+#   name = "sftpgo-pd-disk-2"
+#   type = "pd-standard"
+#   size = 10
+#   zone = "northamerica-northeast1-a"
+# }
 
 
 
@@ -199,9 +199,9 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   disk {
     #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
-    source      = google_compute_disk.sftpgo-pd-disk-2.id
+    source      = google_compute_region_disk.sftpgo-region-disk.id
     #device_name = "sftpgo-region-disk-${count.index}"
-    device_name = "sftpgo-pd-disk-2"
+    device_name = "sftpgo-region-disk"
     mode        = "READ_WRITE"
     auto_delete = false
     boot = false
@@ -281,7 +281,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
 
   stateful_disk {
-    device_name = "sftpgo-pd-disk-2"
+    device_name = "sftpgo-region-disk"
     delete_rule = "NEVER"
   }
  
