@@ -153,90 +153,30 @@ provider "google" {
   region =  var.region
 }
 
-resource "google_compute_region_disk" "sftpgo-region-disk" {
-  #count = 3
-  #name = "sftpgo-region-disk-${count.index}"
-  name = "sftpgo-region-disk-1"
-  region = "northamerica-northeast1"
-  replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
-  size = 10
-  type = "pd-ssd"
+# resource "google_compute_region_disk" "sftpgo-region-disk" {
+#   #count = 3
+#   #name = "sftpgo-region-disk-${count.index}"
+#   name = "sftpgo-region-disk-1"
+#   region = "northamerica-northeast1"
+#   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
+#   size = 10
+#   type = "pd-ssd"
 
-  labels = {
-    environment = "non-prod"
-  }
+#   labels = {
+#     environment = "non-prod"
+#   }
+# }
+
+# Create Persistent disk 
+resource "google_compute_disk" "sftpgo-pd-disk-2" {
+  name = "sftpgo-pd-disk-2"
+  type = "pd-standard"
+  size = 10
+  zone = "northamerica-northeast1-a"
 }
 
 
-# # Verify that disk is created correctly.
 
-# output "sftpgo-region-disk" {
-#   value = google_compute_region_disk.sftpgo-region-disk
-# }
-
-# # Create a compute instance to just to formart the regional disk 
-
-# resource "google_compute_instance" "disk-formatter" {
-#   count = 3
-#   name    = "format-disk-instance-${count.index}"
-#   machine_type = "n1-standard-1"
-#   zone = "northamerica-northeast1-a"
-#   scheduling {
-#     preemptible       = true
-#     automatic_restart = false
-#     on_host_maintenance = "TERMINATE"
-#   }
-
-#   boot_disk {
-#     auto_delete = true
-#     initialize_params {
-#     image = "cos-cloud/cos-113-lts"
-#     size = 20
-#     type = "pd-balanced"
-#     }
-#     mode = "READ_WRITE"
-#   }
-
-#   attached_disk {
-#     source = google_compute_region_disk.sftpgo-region-disk[count.index].id
-#     device_name = "sftp-existing-disk"
-#   }
-#   network_interface {
-#    network = "default"
-#   }
-
-#   metadata = {
-#     user-data = <<-EOF
-#       #cloud-config
-
-#       bootcmd:
-#       - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
-#       - spleep 60
-#       - echo "Tasks are completed. Shutting down."
-#       - sudo shutdown -h now
-#     EOF
-#   }
-
-#   lifecycle {
-#     ignore_changes = [ attached_disk ]
-#   }
-
-#   depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
-  
-# }
-
-
-
-
-# # Wait for the temporary instance to shut down before detaching the disk
-# resource "null_resource" "wait_for_shutdown" {
-#   depends_on = [ google_compute_instance.disk-formatter ]
-
-#   provisioner "local-exec" {
-#     command = "sleep 2m"
-#   }
-
-# }
 
 # Create an instance template
 resource "google_compute_instance_template" "instance_template_0" {
@@ -259,9 +199,9 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   disk {
     #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
-    source      = google_compute_region_disk.sftpgo-region-disk.id
+    source      = google_compute_disk.sftpgo-pd-disk-2.id
     #device_name = "sftpgo-region-disk-${count.index}"
-    device_name = "sftpgo-region-disk-1"
+    device_name = "sftpgo-pd-disk-2"
     mode        = "READ_WRITE"
     auto_delete = false
     boot = false
@@ -332,12 +272,17 @@ resource "google_compute_instance_template" "instance_template_0" {
 
 resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   name = "sftp-instance-group-manager-0"
-  base_instance_name = "sftp-instance-rw"
+  base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 1
 
   version {
     instance_template = google_compute_instance_template.instance_template_0.self_link
+  }
+
+  stateful_disk {
+    device_name = "sftpgo-pd-disk-2"
+    delete_rule = "NEVER"
   }
  
   named_port {
@@ -354,6 +299,10 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
     health_check      = google_compute_health_check.default.self_link
     initial_delay_sec = 300
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_compute_health_check" "default" {
@@ -367,3 +316,127 @@ resource "google_compute_health_check" "default" {
     port = "8080"
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############3
+# # Verify that disk is created correctly.
+
+# output "sftpgo-region-disk" {
+#   value = google_compute_region_disk.sftpgo-region-disk
+# }
+
+# # Create a compute instance to just to formart the regional disk 
+
+# resource "google_compute_instance" "disk-formatter" {
+#   count = 3
+#   name    = "format-disk-instance-${count.index}"
+#   machine_type = "n1-standard-1"
+#   zone = "northamerica-northeast1-a"
+#   scheduling {
+#     preemptible       = true
+#     automatic_restart = false
+#     on_host_maintenance = "TERMINATE"
+#   }
+
+#   boot_disk {
+#     auto_delete = true
+#     initialize_params {
+#     image = "cos-cloud/cos-113-lts"
+#     size = 20
+#     type = "pd-balanced"
+#     }
+#     mode = "READ_WRITE"
+#   }
+
+#   attached_disk {
+#     source = google_compute_region_disk.sftpgo-region-disk[count.index].id
+#     device_name = "sftp-existing-disk"
+#   }
+#   network_interface {
+#    network = "default"
+#   }
+
+#   metadata = {
+#     user-data = <<-EOF
+#       #cloud-config
+
+#       bootcmd:
+#       - mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+#       - spleep 60
+#       - echo "Tasks are completed. Shutting down."
+#       - sudo shutdown -h now
+#     EOF
+#   }
+
+#   lifecycle {
+#     ignore_changes = [ attached_disk ]
+#   }
+
+#   depends_on = [ google_compute_region_disk.sftpgo-region-disk ]
+  
+# }
+
+
+
+
+# # Wait for the temporary instance to shut down before detaching the disk
+# resource "null_resource" "wait_for_shutdown" {
+#   depends_on = [ google_compute_instance.disk-formatter ]
+
+#   provisioner "local-exec" {
+#     command = "sleep 2m"
+#   }
+
+# }
+
+# # Create a managed instance group for sftpgo
+
+# resource "google_compute_instance_group_manager" "instance-group-manager-0" {
+#   name = "sftp-instance-group-manager-0"
+#   base_instance_name = "sftp-instance-rw"
+#   zone = "northamerica-northeast1-a"
+#   target_size = 1
+
+#   version {
+#     instance_template = google_compute_instance_template.instance_template_0.self_link
+#   }
+ 
+#   named_port {
+#     name = "http-sftp"
+#     port = 8080
+#   }
+
+#   named_port {
+#     name = "ssh-sftpgo"
+#     port = 2022
+#   }
+
+#   auto_healing_policies {
+#     health_check      = google_compute_health_check.default.self_link
+#     initial_delay_sec = 300
+#   }
+# }
+
+# resource "google_compute_health_check" "default" {
+#   name               = "health-check"
+#   check_interval_sec = 60
+#   timeout_sec        = 10
+#   healthy_threshold  = 3
+#   unhealthy_threshold = 3
+
+#   tcp_health_check {
+#     port = "8080"
+#   }
+# }
