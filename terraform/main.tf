@@ -202,7 +202,7 @@ resource "google_compute_instance_template" "instance_template_0" {
     source      = google_compute_region_disk.sftpgo-region-disk.id
     #device_name = "sftpgo-region-disk-${count.index}"
     device_name = "sftpgo-region-disk"
-    mode        = "READ_WRITE"
+    mode        = "READ_ONLY"
     auto_delete = false
     boot = false
   }
