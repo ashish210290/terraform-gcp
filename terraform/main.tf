@@ -274,7 +274,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   name = "sftp-instance-group-manager-0"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
-  target_size = 1
+  target_size = 2
 
   version {
     instance_template = google_compute_instance_template.instance_template_0.self_link
