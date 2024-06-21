@@ -158,13 +158,9 @@ resource "google_compute_region_disk" "sftpgo-region-disk" {
   #name = "sftpgo-region-disk-${count.index}"
   name = "sftpgo-region-disk"
   region = "northamerica-northeast1"
-  replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b"]
+  replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b", "northamerica-northeast1-c"]
   size = 10
   type = "pd-ssd"
-
-  labels = {
-    environment = "non-prod"
-  }
 }
 
 # # Create Persistent disk 
