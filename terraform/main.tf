@@ -304,7 +304,7 @@ resource "google_compute_instance_template" "instance_template_0" {
               mountPath: /dev/fuse
             - name: sftpgo-gcsfuse-share
               mountPath: /mnt/sftpgo  
-              mountPropagation: bidirectional
+              mountPropagation: Bidirectional
 
         volumes:
           - name: dev-fuse
