@@ -303,23 +303,33 @@ resource "google_compute_instance_template" "instance_template_0" {
         volumes:
           - name: sftpgo-vol
             hostPath:
-              path: /mnt/disks/sftpgo
+              path: /mnt/disks/sftpgo/sftpgo-db
     EOF
     user-data = <<-EOF
       #cloud-config
-      runcmd:
-      - |
-        #!/bin/bash
-          
-        mkdir -p "/mnt/disks/sftpgo"
-        
-        chmod 777 /mnt/disks/sftpgo
+      
 
-      bootcmd:
+      write_files:
+      - path: /etc/systemd/system/sftpgo-gcpfuse.service
+        permissions: 0644
+        owner: root
+        content: |
+          [Unit]
+          Description=Start a GcpFuse docker container
+          Wants=gcr-online.target
+          After=gcr-online.target
+
+          [Service]
+          Environment="HOME=/home/gcpfuse"
+          ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
+          ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount
+          ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
+          ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
+
+      runcmd:
       - mkdir -p "/mnt/disks/sftpgo"
-      - chmod 777 /mnt/disks/sftpgo
-      - docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
-      - docker run --name gcsfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount
+      - systemctl daemon-reload
+      - systemctl start sftpgo-gcpfuse.service
     EOF 
   }
 
