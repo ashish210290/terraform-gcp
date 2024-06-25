@@ -148,10 +148,10 @@ resource "google_monitoring_alert_policy" "Alert-Policy-1" {
 
 # # Create one Regional Disks 
 
-# provider "google" {
-#   project = var.project_id
-#   region =  var.region
-# }
+provider "google" {
+  project = var.project_id
+  region =  var.region
+}
 
 # resource "google_compute_region_disk" "sftpgo-region-disk" {
 #   #count = 3
