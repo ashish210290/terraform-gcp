@@ -295,22 +295,13 @@ resource "google_compute_instance_template" "instance_template_0" {
     gce-container-declaration = <<-EOF
       spec:
         containers:
-          - name: gcs-fuse
-            image:  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount
-            securityContext:
-              privileged: true
+          - name: sftpgo
+            image: drakkan/sftpgo
             volumeMounts:
-            - name: dev-fuse
-              mountPath: /dev/fuse
-            - name: sftpgo-gcsfuse-share
-              mountPath: /mnt/sftpgo  
-              mountPropagation: Bidirectional
-
+               - mountPath: /var/lib/sftpgo
+                 name: sftpgo-vol
         volumes:
-          - name: dev-fuse
-            hostPath:
-              path: /dev/fuse
-          - name: sftpgo-gcsfuse-share
+          - name: sftpgo-vol
             hostPath:
               path: /mnt/disks/sftpgo
     EOF
@@ -327,6 +318,8 @@ resource "google_compute_instance_template" "instance_template_0" {
       bootcmd:
       - mkdir -p "/mnt/disks/sftpgo"
       - chmod 777 /mnt/disks/sftpgo
+      - docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
+      - docker run --name gcsfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount
     EOF 
   }
 
