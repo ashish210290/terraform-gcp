@@ -308,9 +308,11 @@ resource "google_compute_instance_template" "instance_template_0" {
 
         volumes:
           - name: dev-fuse
-            mountPath: /dev/fuse
+            hostPath:
+              path: /dev/fuse
           - name: sftpgo-gcsfuse-share
-            mountPath: /mnt/disks/sftpgo
+            hostPath:
+              path: /mnt/disks/sftpgo
     EOF
     user-data = <<-EOF
       #cloud-config
