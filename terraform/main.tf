@@ -299,11 +299,22 @@ resource "google_compute_instance_template" "instance_template_0" {
             image: drakkan/sftpgo
             volumeMounts:
                - mountPath: /var/lib/sftpgo
-                 name: sftpgo-vol
+                 name: sftpgo-db-vol
+               - mountPath: /etc/sftpgo
+                 name: sftpgo-config-vol
+               - mountPath: /srv/sftpgo/data
+                 name: sftpgo-user-data-vol 
         volumes:
-          - name: sftpgo-vol
+          - name: sftpgo-db-vol
             hostPath:
-              path: /mnt/disks/sftpgo/sftpgo-db
+              path: /mnt/disks/sftpgo/db
+          - name: sftpgo-config-vol
+            hostPath:
+              path: /mnt/disks/sftpgo/config
+          - name: sftpgo-user-data-vol
+            hostPath: 
+              path: /mnt/disks/sftpgo/user-data      
+              
     EOF
     user-data = <<-EOF
       #cloud-config
@@ -318,6 +329,9 @@ resource "google_compute_instance_template" "instance_template_0" {
           Wants=gcr-online.target
           After=gcr-online.target
 
+          [Install]
+          WantedBy=default.target
+
           [Service]
           Environment="HOME=/home/gcpfuse"
           ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
@@ -329,6 +343,7 @@ resource "google_compute_instance_template" "instance_template_0" {
       - mkdir -p "/mnt/disks/sftpgo"
       - systemctl daemon-reload
       - systemctl start sftpgo-gcpfuse.service
+      - systemctl enable sftpgo-gcpfuse.service
     EOF 
   }
 
