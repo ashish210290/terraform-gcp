@@ -272,6 +272,7 @@ resource "google_compute_instance_template" "instance_template_0" {
   #count = 3
   name_prefix           = "sftpgo-instance-template-"
   machine_type   = "e2-micro"
+  
 
   scheduling {
     automatic_restart   = true
@@ -356,6 +357,7 @@ resource "google_compute_instance_template" "instance_template_0" {
   lifecycle {
     create_before_destroy = true
   }
+  region = var.region
 }
 
 #--------------------------------------------#
@@ -441,10 +443,12 @@ resource "google_compute_backend_service" "nlb-backend-service-0" {
     group = google_compute_instance_group_manager.instance-group-manager-0.instance_group
     balancing_mode = "CONNECTION"
     max_connections_per_instance = 100
+    
   }
   log_config {
     enable = true
   }
+  
 }
 
   #------------------------------------------------------------#
