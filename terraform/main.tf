@@ -273,7 +273,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
 
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-http-check.self_link
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link
     initial_delay_sec = 300
   }
 
@@ -335,7 +335,7 @@ resource "google_compute_address" "sftpgo-nlb-address" {
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
-  health_checks = [google_compute_region_health_check.sftpgo-health-ssh-check.id]
+  health_checks = [google_compute_region_health_check.sftpgo-health-http-check]
   load_balancing_scheme = "EXTERNAL"
   protocol = "TCP"
   timeout_sec = 30
