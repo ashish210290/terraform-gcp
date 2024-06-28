@@ -323,7 +323,7 @@ resource "google_compute_region_health_check" "sftpgo-health-ssh-check" {
   # ii. Create Public Ip for Load-Balancer |
   #----------------------------------------#
 
-resource "google_compute_global_address" "sftpgo-nlb-address" {
+resource "google_compute_address" "sftpgo-nlb-address" {
  provider      = google-beta
  name          = "sftpgo-nlb-address"
  ip_version    = "IPV4"
@@ -360,7 +360,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   name = "tcp8080-2022-forwarding-rule"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = google_compute_global_address.sftpgo-nlb-address.address
+  ip_address = google_compute_address.sftpgo-nlb-address.address
   ports = [ "8080", "2022" ]
   ip_protocol = "TCP"
   ip_version = "IPV4"
