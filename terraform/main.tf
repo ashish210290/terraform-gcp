@@ -153,117 +153,6 @@ provider "google" {
   region =  var.region
 }
 
-# resource "google_compute_region_disk" "sftpgo-region-disk" {
-#   #count = 3
-#   #name = "sftpgo-region-disk-${count.index}"
-#   name = "sftpgo-region-disk"
-#   region = "northamerica-northeast1"
-#   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b", "northamerica-northeast1-c"]
-#   size = 10
-#   type = "pd-ssd"
-# }
-
-# # Create Persistent disk 
-# resource "google_compute_disk" "sftpgo-pd-disk-2" {
-#   name = "sftpgo-pd-disk-2"
-#   type = "pd-standard"
-#   size = 10
-#   zone = "northamerica-northeast1-a"
-# }
-
-
-
-
-# # Create an instance template
-# resource "google_compute_instance_template" "instance_template_0" {
-#   #count = 3
-#   name_prefix           = "sftpgo-instance-template-"
-#   machine_type   = "e2-micro"
-
-#   scheduling {
-#     automatic_restart   = true
-#     on_host_maintenance = "MIGRATE"
-#   }
-    
-#   disk {
-#     auto_delete  = true
-#     boot         = true
-#     source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
-#     disk_type = "pd-standard"
-#     disk_size_gb = 20
-#   }
-
-#   disk {
-#     #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
-#     source      = google_compute_region_disk.sftpgo-region-disk.id
-#     #device_name = "sftpgo-region-disk-${count.index}"
-#     device_name = "sftpgo-region-disk"
-#     mode        = "READ_WRITE"
-#     auto_delete = false
-#     boot = false
-#   }
-#   network_interface {
-#     network = "default"
-
-#     access_config {
-      
-#     }
-#   }
-
-#   metadata = {
-#     gce-container-declaration = <<-EOF
-#       spec:
-#         containers:
-#           - name: sftpgo
-#             image: drakkan/sftpgo
-#             volumeMounts:
-#               - mountPath: /var/lib/sftpgo
-#                 name: sftpgo-vol
-#         volumes:
-#           - name: sftpgo-vol
-#             hostPath:
-#               path: /mnt/disks/sftpgo
-#     EOF
-#     user-data = <<-EOF
-#       #cloud-config
-#       runcmd:
-#       - |
-#         #!/bin/bash
-#         DISK_DEVICE="/dev/sdb"
-#         MOUNT_POINT="/mnt/disks/sftpgo"
-          
-#         if ! blkid | grep -q "/dev/sdb";
-#         then   
-#           mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/sdb"
-#         fi
-          
-#         mkdir -p "/mnt/disks/sftpgo"
-          
-#         mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
-        
-#         chmod 777 /mnt/disks/sftpgo
-
-#       bootcmd:
-#       - mkdir -p "/mnt/disks/sftpgo" 
-#       - mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
-#       - chmod 777 /mnt/disks/sftpgo
-
-#     EOF 
-#   }
-
-#   service_account {
-#     email  = "default"
-#     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-#   }
-
-#   tags = ["http-server"]
-
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
-
 #-------------------------------------#
 # Create an Instance Template for MIG |
 #-------------------------------------#
@@ -462,7 +351,6 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   log_config {
     enable = true
   }
-  
 }
 
   #------------------------------------------------------------#
@@ -480,6 +368,150 @@ resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   network_tier = "PREMIUM"
   region = var.region
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# resource "google_compute_region_disk" "sftpgo-region-disk" {
+#   #count = 3
+#   #name = "sftpgo-region-disk-${count.index}"
+#   name = "sftpgo-region-disk"
+#   region = "northamerica-northeast1"
+#   replica_zones = ["northamerica-northeast1-a", "northamerica-northeast1-b", "northamerica-northeast1-c"]
+#   size = 10
+#   type = "pd-ssd"
+# }
+
+# # Create Persistent disk 
+# resource "google_compute_disk" "sftpgo-pd-disk-2" {
+#   name = "sftpgo-pd-disk-2"
+#   type = "pd-standard"
+#   size = 10
+#   zone = "northamerica-northeast1-a"
+# }
+
+
+
+
+# # Create an instance template
+# resource "google_compute_instance_template" "instance_template_0" {
+#   #count = 3
+#   name_prefix           = "sftpgo-instance-template-"
+#   machine_type   = "e2-micro"
+
+#   scheduling {
+#     automatic_restart   = true
+#     on_host_maintenance = "MIGRATE"
+#   }
+    
+#   disk {
+#     auto_delete  = true
+#     boot         = true
+#     source_image = "projects/cos-cloud/global/images/family/cos-stable"  # Container-Optimized OS
+#     disk_type = "pd-standard"
+#     disk_size_gb = 20
+#   }
+
+#   disk {
+#     #source      = google_compute_region_disk.sftpgo-region-disk[count.index].id
+#     source      = google_compute_region_disk.sftpgo-region-disk.id
+#     #device_name = "sftpgo-region-disk-${count.index}"
+#     device_name = "sftpgo-region-disk"
+#     mode        = "READ_WRITE"
+#     auto_delete = false
+#     boot = false
+#   }
+#   network_interface {
+#     network = "default"
+
+#     access_config {
+      
+#     }
+#   }
+
+#   metadata = {
+#     gce-container-declaration = <<-EOF
+#       spec:
+#         containers:
+#           - name: sftpgo
+#             image: drakkan/sftpgo
+#             volumeMounts:
+#               - mountPath: /var/lib/sftpgo
+#                 name: sftpgo-vol
+#         volumes:
+#           - name: sftpgo-vol
+#             hostPath:
+#               path: /mnt/disks/sftpgo
+#     EOF
+#     user-data = <<-EOF
+#       #cloud-config
+#       runcmd:
+#       - |
+#         #!/bin/bash
+#         DISK_DEVICE="/dev/sdb"
+#         MOUNT_POINT="/mnt/disks/sftpgo"
+          
+#         if ! blkid | grep -q "/dev/sdb";
+#         then   
+#           mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "/dev/sdb"
+#         fi
+          
+#         mkdir -p "/mnt/disks/sftpgo"
+          
+#         mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
+        
+#         chmod 777 /mnt/disks/sftpgo
+
+#       bootcmd:
+#       - mkdir -p "/mnt/disks/sftpgo" 
+#       - mount -o discard,defaults  "/dev/sdb" "/mnt/disks/sftpgo"
+#       - chmod 777 /mnt/disks/sftpgo
+
+#     EOF 
+#   }
+
+#   service_account {
+#     email  = "default"
+#     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+#   }
+
+#   tags = ["http-server"]
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 
 
