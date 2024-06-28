@@ -335,7 +335,7 @@ resource "google_compute_address" "sftpgo-nlb-address" {
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
-  health_checks = [google_compute_region_health_check.sftpgo-health-http-check]
+  health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
   load_balancing_scheme = "EXTERNAL"
   protocol = "TCP"
   timeout_sec = 30
