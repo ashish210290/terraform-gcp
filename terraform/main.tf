@@ -441,7 +441,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   backend {
     group = google_compute_instance_group_manager.instance-group-manager-0.instance_group
     balancing_mode = "CONNECTION"
-    max_connections_per_instance = 100
+    #max_connections_per_instance = 100
     
   }
   log_config {
