@@ -357,7 +357,6 @@ resource "google_compute_instance_template" "instance_template_0" {
   lifecycle {
     create_before_destroy = true
   }
-  region = var.region
 }
 
 #--------------------------------------------#
@@ -430,7 +429,7 @@ resource "google_compute_global_address" "sftpgo-nlb-address" {
   # iii. Create Backend serice for Load-Balancer |
   #----------------------------------------------#
 
-resource "google_compute_backend_service" "nlb-backend-service-0" {
+resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
   health_checks = [google_compute_health_check.sftpgo-health-ssh-check.id]
   load_balancing_scheme = "EXTERNAL"
@@ -457,7 +456,7 @@ resource "google_compute_backend_service" "nlb-backend-service-0" {
 
 resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   name = "tcp8080-2022-forwarding-rule"
-  backend_service = google_compute_backend_service.nlb-backend-service-0.id
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = google_compute_global_address.sftpgo-nlb-address.address
   ports = [ "8080", "2022" ]
   ip_protocol = "TCP"
