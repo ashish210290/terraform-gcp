@@ -298,6 +298,12 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   }
 }
 
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_compute_instance_group_manager.instance-group-manager-0]
+
+  create_duration = "120s"
+}
+
 #-----------------------------------------------------------------------------------------------------------------#
 # Create External Passthrough Network Load-Balancer (NLB)                                                         | 
 # Resources to create NLB - TCP health-check, backend-service, public IP and port (2022 and 8080) forwarding rules|
@@ -317,6 +323,7 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   tcp_health_check {
     port = "8080"
   }
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
   #----------------------------------------#
@@ -327,6 +334,7 @@ resource "google_compute_address" "sftpgo-nlb-address" {
  provider      = google-beta
  name          = "sftpgo-nlb-address"
  ip_version    = "IPV4"
+ depends_on = [time_sleep.wait_120_seconds]
 }
 
   #----------------------------------------------#
@@ -351,6 +359,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   log_config {
     enable = true
   }
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
   #------------------------------------------------------------#
@@ -367,6 +376,7 @@ resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   load_balancing_scheme = "EXTERNAL"
   network_tier = "PREMIUM"
   region = var.region
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 
