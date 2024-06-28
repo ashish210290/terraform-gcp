@@ -384,7 +384,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
 
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link
+    health_check      = google_compute_health_check.sftpgo-health-http-check.self_link
     initial_delay_sec = 300
   }
 
@@ -393,16 +393,11 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
 }
 
-#-----------------------------------------------------------------------------------------------------------------#
-# Create External Passthrough Network Load-Balancer (NLB)                                                         | 
-# Resources to create NLB - TCP health-check, backend-service, public IP and port (2022 and 8080) forwarding rules|
-#-----------------------------------------------------------------------------------------------------------------#
+#-----------------------------------#
+# Health Check at port 2022 for MIG |
+#-----------------------------------#
 
-  #-----------------------------------------#
-  # i. Create Health Check on TCP port 2022 |
-  #-----------------------------------------# 
-
-resource "google_compute_health_check" "sftpgo-health-ssh-check" {
+resource "google_compute_health_check" "sftpgo-health-http-check" {
   name               = "sftpgo-health-ssh-check"
   check_interval_sec = 50
   timeout_sec        = 10
@@ -412,7 +407,27 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   tcp_health_check {
     port = "2022"
   }
-  
+}
+
+#-----------------------------------------------------------------------------------------------------------------#
+# Create External Passthrough Network Load-Balancer (NLB)                                                         | 
+# Resources to create NLB - TCP health-check, backend-service, public IP and port (2022 and 8080) forwarding rules|
+#-----------------------------------------------------------------------------------------------------------------#
+
+  #-----------------------------------------#
+  # i. Health Check on TCP port 8080        |
+  #-----------------------------------------# 
+
+resource "google_compute_region_health_check" "sftpgo-health-ssh-check" {
+  name               = "sftpgo-health-ssh-check"
+  check_interval_sec = 50
+  timeout_sec        = 10
+  healthy_threshold  = 5
+  unhealthy_threshold = 10
+
+  tcp_health_check {
+    port = "2022"
+  }
 }
 
   #----------------------------------------#
@@ -431,7 +446,7 @@ resource "google_compute_global_address" "sftpgo-nlb-address" {
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
-  health_checks = [google_compute_health_check.sftpgo-health-ssh-check.id]
+  health_checks = [google_compute_region_health_check.sftpgo-health-ssh-check.id]
   load_balancing_scheme = "EXTERNAL"
   protocol = "TCP"
   timeout_sec = 30
