@@ -383,7 +383,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
 
   auto_healing_policies {
-    health_check      = google_compute_health_check.default.self_link
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link
     initial_delay_sec = 300
   }
 
@@ -391,9 +391,15 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
     create_before_destroy = true
   }
 }
-#--------------------------------------#
-# Create Health Check on TCP port 2022 |
-#--------------------------------------#
+
+#-----------------------------------------------------------------------------------------------------------------#
+# Create External Passthrough Network Load-Balancer (NLB)                                                         | 
+# Resources to create NLB - TCP health-check, backend-service, public IP and port (2022 and 8080) forwarding rules|
+#-----------------------------------------------------------------------------------------------------------------#
+
+  #-----------------------------------------#
+  # i. Create Health Check on TCP port 2022 |
+  #-----------------------------------------# 
 
 resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   name               = "sftpgo-health-ssh-check"
@@ -408,9 +414,9 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   
 }
 
-#------------------------------------#
-# Create Public Ip for Load-Balancer |
-#------------------------------------#
+  #----------------------------------------#
+  # ii. Create Public Ip for Load-Balancer |
+  #----------------------------------------#
 
 resource "google_compute_global_address" "sftpgo-nlb-address" {
  provider      = google-beta
@@ -418,10 +424,9 @@ resource "google_compute_global_address" "sftpgo-nlb-address" {
  ip_version    = "IPV4"
 }
 
-#-----------------------------------------------------------------------------------------------------------------#
-# Create External Passthrough Network Load-Balancer (NLB)                                                         | 
-# Resources to create NLB - TCP health-check, backend-service, public IP and port (2022 and 8080) forwarding rules|
-#-----------------------------------------------------------------------------------------------------------------#
+  #----------------------------------------------#
+  # iii. Create Backend serice for Load-Balancer |
+  #----------------------------------------------#
 
 resource "google_compute_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
@@ -440,6 +445,10 @@ resource "google_compute_backend_service" "nlb-backend-service-0" {
     enable = true
   }
 }
+
+  #------------------------------------------------------------#
+  # iv. Create Forwarding rules for SftpGo ports 2022 and 8080 |
+  #------------------------------------------------------------#
 
 resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   name = "tcp8080-2022-forwarding-rule"
