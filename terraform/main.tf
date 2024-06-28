@@ -264,7 +264,10 @@ provider "google" {
 # }
 
 
-# Create an instance template
+#-------------------------------------#
+# Create an Instance Template for MIG |
+#-------------------------------------#
+
 resource "google_compute_instance_template" "instance_template_0" {
   #count = 3
   name_prefix           = "sftpgo-instance-template-"
@@ -285,10 +288,6 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   network_interface {
     network = "default"
-
-    access_config {
-      
-    }
   }
 
   metadata = {
@@ -359,8 +358,9 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 }
 
-
-# Create a managed instance group for sftpgo
+#--------------------------------------------#
+# Create a Managed Instance Group for sftpgo |
+#--------------------------------------------#
 
 resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   name = "sftp-instance-group-manager-0"
@@ -391,13 +391,16 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
     create_before_destroy = true
   }
 }
+#--------------------------------------#
+# Create Health Check on TCP port 2022 |
+#--------------------------------------#
 
-resource "google_compute_health_check" "default" {
-  name               = "health-check"
-  check_interval_sec = 60
+resource "google_compute_health_check" "sftpgo-health-ssh-check" {
+  name               = "sftpgo-health-ssh-check"
+  check_interval_sec = 50
   timeout_sec        = 10
-  healthy_threshold  = 3
-  unhealthy_threshold = 3
+  healthy_threshold  = 5
+  unhealthy_threshold = 10
 
   tcp_health_check {
     port = "2022"
@@ -405,11 +408,48 @@ resource "google_compute_health_check" "default" {
   
 }
 
+#------------------------------------#
+# Create Public Ip for Load-Balancer |
+#------------------------------------#
 
+resource "google_compute_global_address" "sftpgo-nlb-address" {
+ provider      = google-beta
+ name          = "sftpgo-nlb-address"
+ ip_version    = "IPV4"
+}
 
+#-----------------------------------------------------------------------------------------------------------------#
+# Create External Passthrough Network Load-Balancer (NLB)                                                         | 
+# Resources to create NLB - TCP health-check, backend-service, public IP and port (2022 and 8080) forwarding rules|
+#-----------------------------------------------------------------------------------------------------------------#
 
+resource "google_compute_backend_service" "nlb-backend-service-0" {
+  name = "nlb-backend-service-0"
+  health_checks = [google_compute_health_check.sftpgo-health-ssh-check.id]
+  load_balancing_scheme = "EXTERNAL"
+  protocol = "TCP"
+  timeout_sec = 30
+  connection_draining_timeout_sec = 300
+  locality_lb_policy = "MAGLEV"
+  session_affinity = "NONE"
+  backend {
+    group = google_compute_instance_group_manager.instance-group-manager-0.instance_group
+    balancing_mode = "CONNECTION"
+  }
+  log_config {
+    enable = true
+  }
+}
 
-
+resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
+  name = "tcp8080-2022-forwarding-rule"
+  ip_address = google_compute_global_address.sftpgo-nlb-address.address
+  ports = [ "8080", "2022" ]
+  ip_protocol = "TCP"
+  ip_version = "IPV4"
+  load_balancing_scheme = "EXTERNAL"
+  network_tier = "PREMIUM"
+}
 
 
 
