@@ -290,7 +290,7 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   name               = "sftpgo-health-ssh-check"
   check_interval_sec = 50
   timeout_sec        = 10
-  healthy_threshold  = 5
+  healthy_threshold  = 1
   unhealthy_threshold = 10
 
   tcp_health_check {
@@ -298,10 +298,10 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   }
 }
 
-resource "time_sleep" "wait_120_seconds" {
+resource "time_sleep" "wait_180_seconds" {
   depends_on = [google_compute_instance_group_manager.instance-group-manager-0]
 
-  create_duration = "120s"
+  create_duration = "180s"
 }
 
 #-----------------------------------------------------------------------------------------------------------------#
@@ -317,13 +317,13 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   name               = "sftpgo-health-http-check"
   check_interval_sec = 50
   timeout_sec        = 10
-  healthy_threshold  = 5
+  healthy_threshold  = 3
   unhealthy_threshold = 10
 
   tcp_health_check {
     port = "8080"
   }
-  depends_on = [time_sleep.wait_120_seconds]
+  depends_on = [time_sleep.wait_180_seconds]
 }
 
   #----------------------------------------#
@@ -334,7 +334,7 @@ resource "google_compute_address" "sftpgo-nlb-address" {
  provider      = google-beta
  name          = "sftpgo-nlb-address"
  ip_version    = "IPV4"
- depends_on = [time_sleep.wait_120_seconds]
+ depends_on = [time_sleep.wait_180_seconds]
 }
 
   #----------------------------------------------#
@@ -359,7 +359,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   log_config {
     enable = true
   }
-  depends_on = [time_sleep.wait_120_seconds]
+  depends_on = [time_sleep.wait_180_seconds]
 }
 
   #------------------------------------------------------------#
@@ -376,7 +376,7 @@ resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   load_balancing_scheme = "EXTERNAL"
   network_tier = "PREMIUM"
   region = var.region
-  depends_on = [time_sleep.wait_120_seconds]
+  depends_on = [time_sleep.wait_180_seconds]
 }
 
 
