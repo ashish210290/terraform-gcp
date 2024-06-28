@@ -286,7 +286,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 # Health Check at port 2022 for MIG |
 #-----------------------------------#
 
-resource "google_compute_health_check" "sftpgo-health-http-check" {
+resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   name               = "sftpgo-health-ssh-check"
   check_interval_sec = 50
   timeout_sec        = 10
@@ -307,15 +307,15 @@ resource "google_compute_health_check" "sftpgo-health-http-check" {
   # i. Health Check on TCP port 8080        |
   #-----------------------------------------# 
 
-resource "google_compute_region_health_check" "sftpgo-health-ssh-check" {
-  name               = "sftpgo-health-ssh-check"
+resource "google_compute_region_health_check" "sftpgo-health-http-check" {
+  name               = "sftpgo-health-http-check"
   check_interval_sec = 50
   timeout_sec        = 10
   healthy_threshold  = 5
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = "2022"
+    port = "8080"
   }
 }
 
