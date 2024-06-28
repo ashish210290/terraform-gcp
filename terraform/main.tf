@@ -452,6 +452,7 @@ resource "google_compute_backend_service" "nlb-backend-service-0" {
 
 resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   name = "tcp8080-2022-forwarding-rule"
+  backend_service = google_compute_backend_service.nlb-backend-service-0.id
   ip_address = google_compute_global_address.sftpgo-nlb-address.address
   ports = [ "8080", "2022" ]
   ip_protocol = "TCP"
