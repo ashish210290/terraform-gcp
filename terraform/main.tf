@@ -248,6 +248,7 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 }
 
+
 #--------------------------------------------#
 # Create a Managed Instance Group for sftpgo |
 #--------------------------------------------#
