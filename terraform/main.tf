@@ -69,82 +69,82 @@ provider "google-beta" {
 #     included_files = ["terraform/**"]
 # }
 
-resource "google_monitoring_alert_policy" "test_alert_policy_name" {
+# resource "google_monitoring_alert_policy" "test_alert_policy_name" {
   
-  project = "divine-energy-253221"
-  display_name = "My Alert Policy"
-  combiner     = "OR"
+#   project = "divine-energy-253221"
+#   display_name = "My Alert Policy"
+#   combiner     = "OR"
 
-  conditions {
-    display_name = "test condition - metrics missing"
-    condition_absent {
-      filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
-      duration = "300s"
+#   conditions {
+#     display_name = "test condition - metrics missing"
+#     condition_absent {
+#       filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
+#       duration = "300s"
 
-      trigger {
-        count = 1
-      }
+#       trigger {
+#         count = 1
+#       }
       
-      aggregations {
-        alignment_period = "300s"
-        per_series_aligner = "ALIGN_MEAN"
-      }
-    }
-  }
-  enabled = true
-  notification_channels = ["projects/divine-energy-253221/notificationChannels/16399540197443471345"]
-}
+#       aggregations {
+#         alignment_period = "300s"
+#         per_series_aligner = "ALIGN_MEAN"
+#       }
+#     }
+#   }
+#   enabled = true
+#   notification_channels = ["projects/divine-energy-253221/notificationChannels/16399540197443471345"]
+# }
 
-resource "google_monitoring_alert_policy" "Alert-Policy-1" {
-    project = "divine-energy-253221"
-    display_name = "My Alert POlicy 1"
-    combiner = "OR"
-    conditions {
-      display_name = "Test Conditions 1"
-      condition_threshold {
-      filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
-      duration = "60s"
-      comparison = "COMPARISON_GT"
-      aggregations {
-        alignment_period = "60s"
-        per_series_aligner = "ALIGN_NONE"
-      }
-      evaluation_missing_data = "EVALUATION_MISSING_DATA_INACTIVE"
-      }     
-    }
-    user_labels = {
-      foo = "bar"
-    }
-}
+# resource "google_monitoring_alert_policy" "Alert-Policy-1" {
+#     project = "divine-energy-253221"
+#     display_name = "My Alert POlicy 1"
+#     combiner = "OR"
+#     conditions {
+#       display_name = "Test Conditions 1"
+#       condition_threshold {
+#       filter = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
+#       duration = "60s"
+#       comparison = "COMPARISON_GT"
+#       aggregations {
+#         alignment_period = "60s"
+#         per_series_aligner = "ALIGN_NONE"
+#       }
+#       evaluation_missing_data = "EVALUATION_MISSING_DATA_INACTIVE"
+#       }     
+#     }
+#     user_labels = {
+#       foo = "bar"
+#     }
+# }
 
- resource "google_monitoring_alert_policy" "nifi_jvm_metrics_status" {
-  project               = "divine-energy-253221"
-  display_name          = "[${var.env}] NiFi JVM is down for 5 mins"
-  documentation {
-    content = "Either Prod NiFi instance is down or its bindplane agent is not running"
-    mime_type = "text/markdown"
-  }
-  severity = "CRITICAL"
-  notification_channels = ["projects/divine-energy-253221/notificationChannels/16399540197443471345"]
-  combiner              = "OR"
-  enabled               = var.enable_nifi_alert
+#  resource "google_monitoring_alert_policy" "nifi_jvm_metrics_status" {
+#   project               = "divine-energy-253221"
+#   display_name          = "[${var.env}] NiFi JVM is down for 5 mins"
+#   documentation {
+#     content = "Either Prod NiFi instance is down or its bindplane agent is not running"
+#     mime_type = "text/markdown"
+#   }
+#   severity = "CRITICAL"
+#   notification_channels = ["projects/divine-energy-253221/notificationChannels/16399540197443471345"]
+#   combiner              = "OR"
+#   enabled               = var.enable_nifi_alert
 
-  conditions {
-    display_name = "NiFi is down - prometheus/nifi_jvm_uptime/gauge is missing"
-    condition_absent {
-      filter   = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
-      duration = "300s"
-      trigger {
-        count = 1
-      }
-      aggregations {
-        alignment_period     = "300s"
-        per_series_aligner   = "ALIGN_MEAN"
-        cross_series_reducer = "REDUCE_NONE"
-      }
-    }
-  }
-}
+#   conditions {
+#     display_name = "NiFi is down - prometheus/nifi_jvm_uptime/gauge is missing"
+#     condition_absent {
+#       filter   = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
+#       duration = "300s"
+#       trigger {
+#         count = 1
+#       }
+#       aggregations {
+#         alignment_period     = "300s"
+#         per_series_aligner   = "ALIGN_MEAN"
+#         cross_series_reducer = "REDUCE_NONE"
+#       }
+#     }
+#   }
+# }
 
 # # Create one Regional Disks 
 
@@ -237,7 +237,7 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 
   service_account {
-    email  = "default"
+    email  = "sftpgo-sa@divine-energy-253221.iam.gserviceaccount.com"
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
