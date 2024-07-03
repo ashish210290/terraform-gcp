@@ -299,10 +299,10 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   }
 }
 
-resource "time_sleep" "wait_180_seconds" {
+resource "time_sleep" "wait_300_seconds" {
   depends_on = [google_compute_instance_group_manager.instance-group-manager-0]
 
-  create_duration = "180s"
+  create_duration = "300s"
 }
 
 #-----------------------------------------------------------------------------------------------------------------#
@@ -324,7 +324,7 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   tcp_health_check {
     port = "8080"
   }
-  depends_on = [time_sleep.wait_180_seconds]
+  depends_on = [time_sleep.wait_300_seconds]
 }
 
   #----------------------------------------#
@@ -335,7 +335,7 @@ resource "google_compute_address" "sftpgo-nlb-address" {
  provider      = google-beta
  name          = "sftpgo-nlb-address"
  ip_version    = "IPV4"
- depends_on = [time_sleep.wait_180_seconds]
+ depends_on = [time_sleep.wait_300_seconds]
 }
 
   #----------------------------------------------#
@@ -360,7 +360,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   log_config {
     enable = true
   }
-  depends_on = [time_sleep.wait_180_seconds]
+  depends_on = [time_sleep.wait_300_seconds]
 }
 
   #------------------------------------------------------------#
@@ -377,7 +377,7 @@ resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
   load_balancing_scheme = "EXTERNAL"
   network_tier = "PREMIUM"
   region = var.region
-  depends_on = [time_sleep.wait_180_seconds]
+  depends_on = [time_sleep.wait_300_seconds]
 }
 
 
