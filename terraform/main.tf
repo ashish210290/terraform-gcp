@@ -417,6 +417,8 @@ resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
 
 
 
+
+
 # resource "google_compute_region_disk" "sftpgo-region-disk" {
 #   #count = 3
 #   #name = "sftpgo-region-disk-${count.index}"
