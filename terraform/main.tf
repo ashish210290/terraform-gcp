@@ -184,7 +184,7 @@ resource "google_compute_instance_template" "instance_template_0" {
     gce-container-declaration = <<-EOF
       spec:
         containers:
-          - name: dsi-sftpgo-container
+          - name: dsi-sftpgo
             image: drakkan/sftpgo
             volumeMounts:
                - mountPath: /var/lib/sftpgo
@@ -251,7 +251,6 @@ resource "google_compute_instance_template" "instance_template_0" {
     create_before_destroy = true
   }
 }
-
 
 #--------------------------------------------#
 # Create a Managed Instance Group for sftpgo |
