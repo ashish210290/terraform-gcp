@@ -184,7 +184,7 @@ resource "google_compute_instance_template" "instance_template_0" {
     gce-container-declaration = <<-EOF
       spec:
         containers:
-          - name: sftpgo
+          - name: dsi-sftpgo-container
             image: drakkan/sftpgo
             volumeMounts:
                - mountPath: /var/lib/sftpgo
@@ -229,7 +229,6 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
       runcmd:
-      - mkdir -p "/mnt/disks/sftpgo"
       - systemctl daemon-reload
       - systemctl start sftpgo-gcpfuse.service
       - systemctl enable sftpgo-gcpfuse.service
@@ -238,7 +237,12 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   service_account {
     email  = "sftpgo-sa@divine-energy-253221.iam.gserviceaccount.com"
-    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+    scopes = ["https://www.googleapis.com/auth/servicecontrol",
+              "https://www.googleapis.com/auth/service.management.readonly",
+              "https://www.googleapis.com/auth/logging.write",
+              "https://www.googleapis.com/auth/monitoring.write",
+              "https://www.googleapis.com/auth/trace.append",
+              "https://www.googleapis.com/auth/devstorage.read_write"]
   }
 
   tags = ["http-server"]
@@ -724,3 +728,4 @@ resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
 #     port = "8080"
 #   }
 # }
+#- mkdir -p "/mnt/disks/sftpgo"
