@@ -178,9 +178,9 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   network_interface {
     network = "default"
-    access_config {
+    # access_config {
       
-    }
+    # }
     
   }
 
