@@ -176,46 +176,63 @@ resource "google_cloudbuild_trigger" "cloud-run-deployment" {
 # # Create one Regional Disks 
 
 
-#-------------------------------------------------------------------#
-# Create an SA to manages Token App secrets in Secret Manager API   |
-#-------------------------------------------------------------------#
+#------------------------------------------#
+# Create Service Account to manage secrets |
+#------------------------------------------#
 
-resource "google_service_account" "token-app-secret-manager-sa" {
-  account_id = "token-app-secret-manager-sa"
-  display_name = "Token App secret manager service account"
+resource "google_service_account" "secrets-manager-sa" {
+  account_id = "secret_manager_sa"
+  display_name = "Dataplatform Ops Secret Manager Service Account"  
 }
 
-resource "google_project_iam_member" "secret_manager_role" {
+#--------------------------------------------------------#
+# Create Service Account to deploy TokenApp on cloud run |
+#--------------------------------------------------------#
+resource "google_service_account" "cloud-run-sa" {
+  account_id = "cloud-run-sa"
+  display_name = "Cloud Run Service Account to manage Token App"
+}
+
+#--------------------------------------------------------------------------------#
+# Define roles to be assigned to secret Manger SA and Cloud Run SA for Token App |
+#--------------------------------------------------------------------------------#
+
+locals {
+  secret_manager_roles = [
+    "roles/secretmanager.viewer"
+  ]
+
+  cloud_run_roles = [
+    "roles/run.developer",
+    "roles/run.invoker",
+    "roles/secretmanager.secretAccessor"
+  ]
+}
+
+#------------------------------------------#
+# Assign roles to Secret Manager SA account|
+#------------------------------------------#
+
+resource "google_project_iam_member" "secret_manager_sa" {
+  for_each = toset(local.secret_manager_roles)
+
   project = var.project_id
-  role    = "roles/secretmanager.admin"
-  member = "serviceAccount:${google_service_account.token-app-secret-manager-sa.email}"
+  role = each.value
+  member = "serviceAccount:${google_service_account.secrets-manager-sa.email}"
 }
 
-#-------------------------------------------------------------------#
-# Should we create secrets through terraform                        |
-#-------------------------------------------------------------------#
+#------------------------------------------#
+# Assign roles to Cloud Run SA account|
+#------------------------------------------#
 
+resource "google_project_iam_member" "cloud-run-sa" {
+  for_each = toset(local.cloud_run_roles)
 
-#-------------------------------------------------------------------#
-# Create an SA to manages cloud run application and access to secrets  |
-#-------------------------------------------------------------------#
-
-resource "google_service_account" "token-app-cloud-run-sa" {
-  account_id = "token-app-cloud-run-sa"
-  display_name = "Cloud run service account"  
-}
-resource "google_project_iam_member" "cloud_run_role" {
   project = var.project_id
-  role = "roles/run.admin"  
-  member = "serviceAccount:${google_service_account.token-app-cloud-run-sa.email}"
+  role = each.value
+  member = "serviceAccount:${google_service_account.cloud-run-sa.email}"
 }
 
-resource "google_project_iam_member" "token_app_secret_accessesor" {
-  project = var.project_id
-  role = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:${google_service_account.token-app-cloud-run-sa.email}"
-  
-}
 
 ## Provide and region details
 provider "google" {
@@ -230,7 +247,7 @@ provider "google" {
 resource "google_compute_instance_template" "instance_template_0" {
   #count = 3
   name_prefix           = "sftpgo-instance-template-"
-  machine_type   = "e2-micro"
+  machine_type          = "e2-micro"
   
 
   scheduling {
