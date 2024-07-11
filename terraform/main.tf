@@ -11,6 +11,33 @@ provider "google-beta" {
   project = var.project_id
   region = "northamerica-northeast1"
 }
+
+# Create Trigger to cloud run deployment ##
+
+
+resource "google_cloudbuild_trigger" "cloud-run-deployment" {
+     provider = google-beta
+     project = "divine-energy-253221"
+     name = "Cloud-Run-Deployment-${var.env}"
+     description = "A trigger to deploy token app on git push to main"
+
+    github {
+      name = "sbtoken-app"
+      owner = "ashish210290"
+      push {
+        branch = "^${var.data_platform_ops_br}$"
+      }
+    }
+    filename = "cloudbuild.yaml"
+    substitutions = {
+      _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
+    }
+    # approval_config {
+    #   approval_required = true
+    # }
+    included_files = ["terraform/**"]
+}
+
 # resource "google_cloudbuild_trigger" "test" {
 #      provider = google-beta
 #      project = "divine-energy-253221"
@@ -148,6 +175,49 @@ provider "google-beta" {
 
 # # Create one Regional Disks 
 
+
+#-------------------------------------------------------------------#
+# Create an SA to manages Token App secrets in Secret Manager API   |
+#-------------------------------------------------------------------#
+
+resource "google_service_account" "token-app-secret-manager-sa" {
+  account_id = "token-app-secret-manager-sa"
+  display_name = "Token App secret manager service account"
+}
+
+resource "google_project_iam_member" "secret_manager_role" {
+  project = var.project_id
+  role    = "roles/secretmanager.admin"
+  member = "serviceAccount:${google_service_account.token-app-secret-manager-sa.email}"
+}
+
+#-------------------------------------------------------------------#
+# Should we create secrets through terraform                        |
+#-------------------------------------------------------------------#
+
+
+#-------------------------------------------------------------------#
+# Create an SA to manages cloud run application and access to secrets  |
+#-------------------------------------------------------------------#
+
+resource "google_service_account" "token-app-cloud-run-sa" {
+  account_id = "token-app-cloud-run-sa"
+  display_name = "Cloud run service account"  
+}
+resource "google_project_iam_member" "cloud_run_role" {
+  project = var.project_id
+  role = "roles/run.admin"  
+  member = "serviceAccount:${google_service_account.token-app-cloud-run-sa.email}"
+}
+
+resource "google_project_iam_member" "token_app_secret_accessesor" {
+  project = var.project_id
+  role = "roles/secretmanager.secretAccessor"
+  member = "serviceAccount:${google_service_account.token-app-cloud-run-sa.email}"
+  
+}
+
+## Provide and region details
 provider "google" {
   project = var.project_id
   region =  var.region
