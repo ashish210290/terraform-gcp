@@ -176,12 +176,12 @@ resource "google_cloudbuild_trigger" "cloud-run-deployment" {
 # # Create one Regional Disks 
 
 
-#------------------------------------------#
+#--------------------------secret_manager_sa----------------#
 # Create Service Account to manage secrets |
 #------------------------------------------#
 
 resource "google_service_account" "secrets-manager-sa" {
-  account_id = "secret_manager_sa"
+  account_id = "secrets-manager-sa"
   display_name = "Dataplatform Ops Secret Manager Service Account"  
 }
 
@@ -213,7 +213,7 @@ locals {
 # Assign roles to Secret Manager SA account|
 #------------------------------------------#
 
-resource "google_project_iam_member" "secret_manager_sa" {
+resource "google_project_iam_member" "secrets-manager-sa" {
   for_each = toset(local.secret_manager_roles)
 
   project = var.project_id
