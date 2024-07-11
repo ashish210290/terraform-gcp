@@ -30,7 +30,9 @@ resource "google_cloudbuild_trigger" "cloud-run-deployment" {
     }
     filename = "cloudbuild.yaml"
     substitutions = {
-      _BACKEND_CONFIG_PREFIX: "terraform/${var.env}"
+      _BACKEND_CONFIG_PREFIX: "terraform/tokenapp-${var.env}"
+      _BACKEND_CONFIG_BUCKET: "bucket=tf-state-${PROJECT_ID}"
+      _VAR_FILE: "tfvars/${var.env}.tfvars"
     }
     # approval_config {
     #   approval_required = true
