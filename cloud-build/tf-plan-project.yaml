@@ -7,7 +7,7 @@ steps:
   - '-c'
   - |
     terraform init -backend-config="${_BACKEND_CONFIG_BUCKET}"
-    terraform plan -var-file=${_VAR_FILE}
+    terraform plan -var-file=${_VAR_FILE} -lock=false
 substitutions: 
   _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate
   _BACKEND_CONFIG_PREFIX: prefix=terraform/np
