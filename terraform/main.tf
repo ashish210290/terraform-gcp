@@ -207,6 +207,7 @@ locals {
   cloud_run_roles = [
     "roles/run.developer",
     "roles/run.invoker",
+    "roles/iam.serviceAccountUser",
     "roles/secretmanager.secretAccessor"
   ]
 }
