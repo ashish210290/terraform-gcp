@@ -176,6 +176,8 @@ resource "google_cloudbuild_trigger" "cloud-run-deployment" {
 # # Create one Regional Disks 
 
 
+
+
 #--------------------------secret_manager_sa----------------#
 # Create Service Account to manage secrets |
 #------------------------------------------#
