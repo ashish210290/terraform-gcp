@@ -10,7 +10,7 @@ steps:
     terraform apply -var-file="${_VAR_FILE}" -auto-approve
 substitutions: 
   _BACKEND_CONFIG_BUCKET: bucket=${PROJECT_ID}-tfstate
-  _BACKEND_CONFIG_PREFIX: prefix=terraform/np
+  _BACKEND_CONFIG_PREFIX: prefix=terraform/pr
   _VAR_FILE: ../tfvars/pr.tfvars
   _TF_COMMAND: plan
   _DIR: "."
