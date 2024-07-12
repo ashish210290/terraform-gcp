@@ -324,8 +324,15 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
       runcmd:
-      - sed -i 's/^#Port 22/Port 2022/' /etc/ssh/sshd_config
-      - systemctl restart sshd
+      - |
+        #!/bin/bash
+        # Check if 'Port' line exists in sshd_config and update or add it
+        if grep -q '^Port' /etc/ssh/sshd_config; then
+          sed -i 's/^Port.*/Port 2022/' /etc/ssh/sshd_config
+        else
+          echo 'Port 2022' >> /etc/ssh/sshd_config
+        fi
+        systemctl restart sshd
       - systemctl daemon-reload
       - systemctl start sftpgo-gcpfuse.service
       - systemctl enable sftpgo-gcpfuse.service
