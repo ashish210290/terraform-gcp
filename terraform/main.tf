@@ -324,6 +324,8 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
       runcmd:
+      - sed -i 's/^#Port 22/Port 2022/' /etc/ssh/sshd_config
+      - systemctl restart sshd
       - systemctl daemon-reload
       - systemctl start sftpgo-gcpfuse.service
       - systemctl enable sftpgo-gcpfuse.service
@@ -368,7 +370,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 
   named_port {
     name = "ssh-sftpgo"
-    port = 2022
+    port = 22
   }
 
   auto_healing_policies {
@@ -382,7 +384,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 }
 
 #-----------------------------------#
-# Health Check at port 2022 for MIG |
+# Health Check at port 22 for MIG |
 #-----------------------------------#
 
 resource "google_compute_health_check" "sftpgo-health-ssh-check" {
@@ -393,7 +395,7 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = "2022"
+    port = "22"
   }
 }
 
@@ -462,14 +464,14 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 }
 
   #------------------------------------------------------------#
-  # iv. Create Forwarding rules for SftpGo ports 2022 and 8080 |
+  # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
   #------------------------------------------------------------#
 
-resource "google_compute_forwarding_rule" "tcp8080-2022-forwarding-rule" {
-  name = "tcp8080-2022-forwarding-rule"
+resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
+  name = "tcp8080-22-forwarding-rule"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = google_compute_address.sftpgo-nlb-address.address
-  ports = [ "8080", "2022" ]
+  ports = [ "8080", "22" ]
   ip_protocol = "TCP"
   ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL"
