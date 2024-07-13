@@ -346,8 +346,7 @@ resource "google_compute_instance_template" "instance_template_0" {
               "https://www.googleapis.com/auth/logging.write",
               "https://www.googleapis.com/auth/monitoring.write",
               "https://www.googleapis.com/auth/trace.append",
-              "https://www.googleapis.com/auth/devstorage.read_write",
-              "https://www.googleapis.com/auth/secrets.secretmanager"]
+              "https://www.googleapis.com/auth/devstorage.read_write"]
   }
 
   tags = ["http-server"]
