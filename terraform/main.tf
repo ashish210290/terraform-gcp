@@ -277,35 +277,35 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   metadata = {
     
-    gce-container-declaration = <<-EOF
-      spec:
-        containers:
-          - name: dsi-sftpgo
-            image: drakkan/sftpgo
-            securityContext:
-                privileged: true
-            ports:
-               - containerPort: 2022
-                 hostPort: 22    
-            volumeMounts:
-               - mountPath: /var/lib/sftpgo
-                 name: sftpgo-db-vol
-               - mountPath: /etc/sftpgo
-                 name: sftpgo-config-vol
-               - mountPath: /srv/sftpgo/data
-                 name: sftpgo-user-data-vol 
-        volumes:
-          - name: sftpgo-db-vol
-            hostPath:
-              path: /mnt/disks/sftpgo/db
-          - name: sftpgo-config-vol
-            hostPath:
-              path: /mnt/disks/sftpgo/config
-          - name: sftpgo-user-data-vol
-            hostPath: 
-              path: /mnt/disks/sftpgo/user-data      
+    # gce-container-declaration = <<-EOF
+    #   spec:
+    #     containers:
+    #       - name: dsi-sftpgo
+    #         image: drakkan/sftpgo
+    #         securityContext:
+    #             privileged: true
+    #         ports:
+    #            - containerPort: 2022
+    #              hostPort: 22    
+    #         volumeMounts:
+    #            - mountPath: /var/lib/sftpgo
+    #              name: sftpgo-db-vol
+    #            - mountPath: /etc/sftpgo
+    #              name: sftpgo-config-vol
+    #            - mountPath: /srv/sftpgo/data
+    #              name: sftpgo-user-data-vol 
+    #     volumes:
+    #       - name: sftpgo-db-vol
+    #         hostPath:
+    #           path: /mnt/disks/sftpgo/db
+    #       - name: sftpgo-config-vol
+    #         hostPath:
+    #           path: /mnt/disks/sftpgo/config
+    #       - name: sftpgo-user-data-vol
+    #         hostPath: 
+    #           path: /mnt/disks/sftpgo/user-data      
               
-    EOF
+    # EOF
     user-data = <<-EOF
       #cloud-config
       
@@ -329,6 +329,25 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
+      - path: /etc/systemd/system/sftpgo.service
+        permissions: 0644
+        owner: root
+        content: |
+          [Unit]
+          Description=SFTPGo container
+          After=gcr-online.targe gcs-fuse.service
+          Requires=gcs-fuse.service
+
+          [Service]
+          ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --publish 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo \
+              --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+          ExecStop=/usr/bin/docker stop sftpgo
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+    
+
       runcmd:
       - |
         #!/bin/bash
@@ -342,6 +361,8 @@ resource "google_compute_instance_template" "instance_template_0" {
       - systemctl daemon-reload
       - systemctl start sftpgo-gcpfuse.service
       - systemctl enable sftpgo-gcpfuse.service
+      - systemctl start sftpgo.service
+      - systemctl enable sftpgo.service
     EOF 
   }
 
