@@ -284,6 +284,9 @@ resource "google_compute_instance_template" "instance_template_0" {
             image: drakkan/sftpgo
             securityContext:
                 privileged: true
+            ports:
+               - containerPort: 2022
+                 hostPort: 22    
             volumeMounts:
                - mountPath: /var/lib/sftpgo
                  name: sftpgo-db-vol
