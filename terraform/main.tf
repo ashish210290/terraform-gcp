@@ -282,6 +282,8 @@ resource "google_compute_instance_template" "instance_template_0" {
         containers:
           - name: dsi-sftpgo
             image: drakkan/sftpgo
+            securityContext:
+                privileged: true
             volumeMounts:
                - mountPath: /var/lib/sftpgo
                  name: sftpgo-db-vol
