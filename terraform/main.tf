@@ -334,9 +334,9 @@ resource "google_compute_instance_template" "instance_template_0" {
         #!/bin/bash
         # Check if 'Port' line exists in sshd_config and update or add it
         if grep -q '^Port' /etc/ssh/sshd_config; then
-          sed -i 's/^Port.*/Port 2022/' /etc/ssh/sshd_config
+          sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
         else
-          echo 'Port 2022' >> /etc/ssh/sshd_config
+          echo 'Port 2222' >> /etc/ssh/sshd_config
         fi
         systemctl restart sshd
       - systemctl daemon-reload
