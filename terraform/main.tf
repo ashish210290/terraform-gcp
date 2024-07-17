@@ -269,9 +269,9 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   network_interface {
     network = "default"
-    # access_config {
+    access_config {
       
-    # }
+    }
     
   }
 
@@ -316,7 +316,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022--volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
@@ -326,12 +326,20 @@ write_files:
 EOF 
   }
 
+metadata_startup_script = <<-EOF
+ #!/bin/bash
+ systemctl stop sshd
+ sed -i 's/#Port 22/Port 2022/' /etc/ssh/sshd_config
+ systemctl start sshd
+ EOF
+
   service_account {
     email  = "sftpgo-sa@divine-energy-253221.iam.gserviceaccount.com"
-    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+    scopes = ["cloud-platform"]
   }
 
-  tags = ["http-server"]
+  tags = ["sftpgo-server"]
+
 
   lifecycle {
     create_before_destroy = true
@@ -452,10 +460,10 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   depends_on = [time_sleep.wait_300_seconds]
 }
 
-resource "google_compute_target_tcp_proxy" "tcp_proxy" {
-  name        = "tcp-proxy"
-  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-}
+# resource "google_compute_target_tcp_proxy" "tcp_proxy" {
+#   name        = "tcp-proxy"
+#   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
+# }
 
   #------------------------------------------------------------#
   # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
@@ -466,8 +474,8 @@ resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   name = "tcp8080-22-forwarding-rule"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = google_compute_address.sftpgo-nlb-address.address
-  ports = [ "22", "8080" ]
-  target = google_compute_target_tcp_proxy.tcp_proxy.id
+  ports = [ "22", "8080", "2022" ]
+  #target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL"
