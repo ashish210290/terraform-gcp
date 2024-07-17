@@ -280,8 +280,6 @@ resource "google_compute_instance_template" "instance_template_0" {
 #cloud-config
 
 runcmd:
-- sudo echo 'Port 2222' >> /etc/ssh/sshd_config
-- systemctl restart sshd
 - systemctl daemon-reload
 - systemctl enable sftpgo-gcpfuse.service
 - systemctl start sftpgo-gcpfuse.service
@@ -318,7 +316,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo -p 44:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
@@ -386,7 +384,7 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = "22"
+    port = "2022"
   }
 }
 
@@ -454,15 +452,22 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   depends_on = [time_sleep.wait_300_seconds]
 }
 
+resource "google_compute_target_tcp_proxy" "tcp_proxy" {
+  name        = "tcp-proxy"
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
+}
+
   #------------------------------------------------------------#
   # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
   #------------------------------------------------------------#
+
 
 resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   name = "tcp8080-22-forwarding-rule"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = google_compute_address.sftpgo-nlb-address.address
-  ports = [ "8080", "22" ]
+  ports = [ "22", "8080" ]
+  target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL"
