@@ -276,15 +276,35 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 
   metadata = {
+    gce-container-declaration = <<-EOF
+      spec:
+        containers:
+          - name: dsi-sftpgo
+            image: drakkan/sftpgo
+            ports:
+               - containerPort: 2022
+                 hostPort: 22    
+            volumeMounts:
+               - mountPath: /var/lib/sftpgo
+                 name: sftpgo-db-vol
+               - mountPath: /etc/sftpgo
+                 name: sftpgo-config-vol
+               - mountPath: /srv/sftpgo/data
+                 name: sftpgo-user-data-vol 
+        volumes:
+          - name: sftpgo-db-vol
+            hostPath:
+              path: /mnt/disks/sftpgo/db
+          - name: sftpgo-config-vol
+            hostPath:
+              path: /mnt/disks/sftpgo/config
+          - name: sftpgo-user-data-vol
+            hostPath: 
+              path: /mnt/disks/sftpgo/user-data      
+              
+    EOF
     user-data = <<-EOF
 #cloud-config
-
-runcmd:
-- systemctl daemon-reload
-- systemctl enable sftpgo-gcpfuse.service
-- systemctl start sftpgo-gcpfuse.service
-- systemctl enable sftpgo.service
-- systemctl start sftpgo.service
 
 write_files:
 - path: /etc/systemd/system/sftpgo-gcpfuse.service
@@ -322,21 +342,17 @@ write_files:
     Restart=always
 
     [Install]
-    WantedBy=default.target 
+    WantedBy=default.target
+
+runcmd:
+- systemctl daemon-reload
+- systemctl enable sftpgo-gcpfuse.service
+- systemctl start sftpgo-gcpfuse.service
+- systemctl enable sftpgo.service
+- systemctl start sftpgo.service
+
 EOF 
   }
-
-metadata_startup_script = <<-EOF
- #!/bin/bash
-    if grep -q "^#Port" /etc/ssh/sshd_config; then
-      # If Port line exists (commented or uncommented), replace it
-      sed -i 's/^#Port [0-9]*/Port 2022/' /etc/ssh/sshd_config
-    else
-      # If Port line doesn't exist, append it
-      echo "Port 2022" >> /etc/ssh/sshd_config
-    fi
-    systemctl restart sshd
- EOF
 
   service_account {
     email  = "sftpgo-sa@divine-energy-253221.iam.gserviceaccount.com"
