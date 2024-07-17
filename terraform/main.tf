@@ -298,24 +298,24 @@ write_files:
     ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
     ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
     ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
-    
-- path: /etc/systemd/system/sftpgo-gcpfuse.service
+
+- path: /etc/systemd/system/sftpgo.service
   permissions: 0644
   owner: root
   content: |
     [Unit]
-    Description=Start a GcpFuse docker container
-    Wants=gcr-online.target
-    After=gcr-online.target
+    Description=SFTPGo container
+    After=sftpgo-gcpfuse.service
+    Requires=sftpgo-gcpfuse.service
+
+    [Service]
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 44:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+    ExecStop=/usr/bin/docker stop sftpgo.service
+    ExecStopPost=/usr/bin/docker rm sftpgo.service
+    Restart=always
 
     [Install]
-    WantedBy=default.target
-    [Service]
-    Environment="HOME=/home/gcpfuse"
-    ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
-    ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
-    ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
-    ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse    
+    WantedBy=default.target    
 EOF 
   }
 
