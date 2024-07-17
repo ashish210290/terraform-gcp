@@ -329,25 +329,6 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
-      - path: /etc/systemd/system/sftpgo.service
-        permissions: 0644
-        owner: root
-        content: |
-          [Unit]
-          Description=SFTPGo container
-          After=sftpgo-gcpfuse.service
-          Requires=sftpgo-gcpfuse.service
-
-          [Service]
-          ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --publish 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo \
-              --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
-          ExecStop=/usr/bin/docker stop sftpgo.service
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
-    
-
       runcmd:
       - |
         #!/bin/bash
