@@ -315,7 +315,21 @@ write_files:
     Restart=always
 
     [Install]
-    WantedBy=default.target    
+    WantedBy=default.target
+
+runcmd:
+- |
+  #!/bin/bash
+  # Check if 'Port' line exists in sshd_config and update or add it
+  if grep -q '^Port' /etc/ssh/sshd_config; then
+    sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
+  else
+    echo 'Port 2222' >> /etc/ssh/sshd_config
+  fi
+- systemctl restart sshd
+- systemctl daemon-reload
+- systemctl enable sftpgo-gcpfuse.service
+- systemctl enable sftpgo.service 
 EOF 
   }
 
