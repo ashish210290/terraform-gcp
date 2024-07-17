@@ -335,13 +335,13 @@ resource "google_compute_instance_template" "instance_template_0" {
         content: |
           [Unit]
           Description=SFTPGo container
-          After=gcr-online.targe gcs-fuse.service
-          Requires=gcs-fuse.service
+          After=sftpgo-gcpfuse.service
+          Requires=sftpgo-gcpfuse.service
 
           [Service]
           ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --publish 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo \
               --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
-          ExecStop=/usr/bin/docker stop sftpgo
+          ExecStop=/usr/bin/docker stop sftpgo.service
           Restart=always
 
           [Install]
@@ -363,6 +363,8 @@ resource "google_compute_instance_template" "instance_template_0" {
       - systemctl enable sftpgo-gcpfuse.service
       - systemctl start sftpgo.service
       - systemctl enable sftpgo.service
+      - systemctl daemon-reload
+
     EOF 
   }
 
