@@ -388,7 +388,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 
   named_port {
     name = "ssh-sftpgo"
-    port = 22
+    port = 2022
   }
 
   auto_healing_policies {
