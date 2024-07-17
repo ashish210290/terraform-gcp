@@ -277,35 +277,35 @@ resource "google_compute_instance_template" "instance_template_0" {
 
   metadata = {
     
-    gce-container-declaration = <<-EOF
-      spec:
-        containers:
-          - name: dsi-sftpgo
-            image: drakkan/sftpgo
-            securityContext:
-                privileged: true
-            ports:
-               - containerPort: 2022
-                 hostPort: 22    
-            volumeMounts:
-               - mountPath: /var/lib/sftpgo
-                 name: sftpgo-db-vol
-               - mountPath: /etc/sftpgo
-                 name: sftpgo-config-vol
-               - mountPath: /srv/sftpgo/data
-                 name: sftpgo-user-data-vol 
-        volumes:
-          - name: sftpgo-db-vol
-            hostPath:
-              path: /mnt/disks/sftpgo/db
-          - name: sftpgo-config-vol
-            hostPath:
-              path: /mnt/disks/sftpgo/config
-          - name: sftpgo-user-data-vol
-            hostPath: 
-              path: /mnt/disks/sftpgo/user-data      
+    # gce-container-declaration = <<-EOF
+    #   spec:
+    #     containers:
+    #       - name: dsi-sftpgo
+    #         image: drakkan/sftpgo
+    #         securityContext:
+    #             privileged: true
+    #         ports:
+    #            - containerPort: 2022
+    #              hostPort: 22    
+    #         volumeMounts:
+    #            - mountPath: /var/lib/sftpgo
+    #              name: sftpgo-db-vol
+    #            - mountPath: /etc/sftpgo
+    #              name: sftpgo-config-vol
+    #            - mountPath: /srv/sftpgo/data
+    #              name: sftpgo-user-data-vol 
+    #     volumes:
+    #       - name: sftpgo-db-vol
+    #         hostPath:
+    #           path: /mnt/disks/sftpgo/db
+    #       - name: sftpgo-config-vol
+    #         hostPath:
+    #           path: /mnt/disks/sftpgo/config
+    #       - name: sftpgo-user-data-vol
+    #         hostPath: 
+    #           path: /mnt/disks/sftpgo/user-data      
               
-    EOF
+    # EOF
     user-data = <<-EOF
       #cloud-config
       
@@ -328,8 +328,25 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
           ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
+      
+      - path: /etc/systemd/system/sftpgo.service
+        permissions: 0644
+        owner: root
+        content: |
+          [Unit]
+          Description=SFTPGo container
+          After=sftpgo-gcpfuse.service
+          Requires=sftpgo-gcpfuse.service
 
-      runcmd:
+          [Service]
+          ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --publish 44:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+          ExecStop=/usr/bin/docker stop sftpgo.service
+          ExecStopPost=/usr/bin/docker rm sftpgo.service
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
+      bootcmd:
       - |
         #!/bin/bash
         # Check if 'Port' line exists in sshd_config and update or add it
@@ -340,23 +357,14 @@ resource "google_compute_instance_template" "instance_template_0" {
         fi
         systemctl restart sshd
       - systemctl daemon-reload
-      - systemctl start sftpgo-gcpfuse.service
       - systemctl enable sftpgo-gcpfuse.service
-      - systemctl start sftpgo.service
       - systemctl enable sftpgo.service
-
     EOF 
   }
 
   service_account {
     email  = "sftpgo-sa@divine-energy-253221.iam.gserviceaccount.com"
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-              # "https://www.googleapis.com/auth/servicecontrol",
-              # "https://www.googleapis.com/auth/service.management.readonly",
-              # "https://www.googleapis.com/auth/logging.write",
-              # "https://www.googleapis.com/auth/monitoring.write",
-              # "https://www.googleapis.com/auth/trace.append",
-              # "https://www.googleapis.com/auth/devstorage.read_write"]
   }
 
   tags = ["http-server"]
