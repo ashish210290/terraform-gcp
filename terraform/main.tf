@@ -278,6 +278,13 @@ resource "google_compute_instance_template" "instance_template_0" {
   metadata = {
     user-data = <<-EOF
 #cloud-config
+
+runcmd:
+- echo 'Port 222' >> /etc/ssh/sshd_config
+- systemctl restart sshd
+- systemctl daemon-reload
+- systemctl enable sftpgo-gcpfuse.service
+- systemctl enable sftpgo.service
       
 write_files:
 - path: /etc/systemd/system/sftpgo-gcpfuse.service
@@ -315,14 +322,7 @@ write_files:
     Restart=always
 
     [Install]
-    WantedBy=default.target
-
-runcmd:
-- echo 'Port 222' >> /etc/ssh/sshd_config
-- systemctl restart sshd
-- systemctl daemon-reload
-- systemctl enable sftpgo-gcpfuse.service
-- systemctl enable sftpgo.service 
+    WantedBy=default.target 
 EOF 
   }
 
