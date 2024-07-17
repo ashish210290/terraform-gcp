@@ -280,24 +280,6 @@ resource "google_compute_instance_template" "instance_template_0" {
       #cloud-config
       
       write_files:
-      - path: /etc/systemd/system/sftpgo.service
-        permissions: 0644
-        owner: root
-        content: |
-          [Unit]
-          Description=SFTPGo container
-          After=sftpgo-gcpfuse.service
-          Requires=sftpgo-gcpfuse.service
-
-          [Service]
-          ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
-          ExecStop=/usr/bin/docker stop sftpgo.service
-          ExecStopPost=/usr/bin/docker rm sftpgo.service
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
-
       - path: /etc/systemd/system/sftpgo-gcpfuse.service
         permissions: 0644
         owner: root
@@ -318,8 +300,15 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
       
   
-      runcmd:
-      - echo 'Port 2222' >> /etc/ssh/sshd_config
+      bootcmd:
+      - |
+        #!/bin/bash
+        # Check if 'Port' line exists in sshd_config and update or add it
+        if grep -q '^Port' /etc/ssh/sshd_config; then
+          sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
+        else
+          echo 'Port 2222' >> /etc/ssh/sshd_config
+        fi
       - systemctl restart sshd
       - systemctl daemon-reload
       - systemctl enable sftpgo-gcpfuse.service
