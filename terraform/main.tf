@@ -276,36 +276,6 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 
   metadata = {
-    
-    # gce-container-declaration = <<-EOF
-    #   spec:
-    #     containers:
-    #       - name: dsi-sftpgo
-    #         image: drakkan/sftpgo
-    #         securityContext:
-    #             privileged: true
-    #         ports:
-    #            - containerPort: 2022
-    #              hostPort: 22    
-    #         volumeMounts:
-    #            - mountPath: /var/lib/sftpgo
-    #              name: sftpgo-db-vol
-    #            - mountPath: /etc/sftpgo
-    #              name: sftpgo-config-vol
-    #            - mountPath: /srv/sftpgo/data
-    #              name: sftpgo-user-data-vol 
-    #     volumes:
-    #       - name: sftpgo-db-vol
-    #         hostPath:
-    #           path: /mnt/disks/sftpgo/db
-    #       - name: sftpgo-config-vol
-    #         hostPath:
-    #           path: /mnt/disks/sftpgo/config
-    #       - name: sftpgo-user-data-vol
-    #         hostPath: 
-    #           path: /mnt/disks/sftpgo/user-data      
-              
-    # EOF
     user-data = <<-EOF
       #cloud-config
       
