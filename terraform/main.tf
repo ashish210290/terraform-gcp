@@ -280,11 +280,13 @@ resource "google_compute_instance_template" "instance_template_0" {
 #cloud-config
 
 runcmd:
-- sudo echo 'Port 22' >> /etc/ssh/sshd_config
+- sudo echo 'Port 2222' >> /etc/ssh/sshd_config
 - systemctl restart sshd
 - systemctl daemon-reload
 - systemctl enable sftpgo-gcpfuse.service
+- systemctl start sftpgo-gcpfuse.service
 - systemctl enable sftpgo.service
+- systemctl start sftpgo.service
 
 write_files:
 - path: /etc/systemd/system/sftpgo-gcpfuse.service
