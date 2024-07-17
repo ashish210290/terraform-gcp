@@ -328,9 +328,14 @@ EOF
 
 metadata_startup_script = <<-EOF
  #!/bin/bash
- systemctl stop sshd
- sed -i 's/#Port 22/Port 2022/' /etc/ssh/sshd_config
- systemctl start sshd
+    if grep -q "^#Port" /etc/ssh/sshd_config; then
+      # If Port line exists (commented or uncommented), replace it
+      sed -i 's/^#Port [0-9]*/Port 2022/' /etc/ssh/sshd_config
+    else
+      # If Port line doesn't exist, append it
+      echo "Port 2022" >> /etc/ssh/sshd_config
+    fi
+    systemctl restart sshd
  EOF
 
   service_account {
