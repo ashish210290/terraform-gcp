@@ -280,6 +280,24 @@ resource "google_compute_instance_template" "instance_template_0" {
       #cloud-config
       
       write_files:
+      - path: /etc/systemd/system/sftpgo.service
+        permissions: 0644
+        owner: root
+        content: |
+          [Unit]
+          Description=SFTPGo container
+          After=sftpgo-gcpfuse.service
+          Requires=sftpgo-gcpfuse.service
+
+          [Service]
+          ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+          ExecStop=/usr/bin/docker stop sftpgo.service
+          ExecStopPost=/usr/bin/docker rm sftpgo.service
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
+
       - path: /etc/systemd/system/sftpgo-gcpfuse.service
         permissions: 0644
         owner: root
@@ -299,24 +317,8 @@ resource "google_compute_instance_template" "instance_template_0" {
           ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
           ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
       
-      - path: /etc/systemd/system/sftpgo.service
-        permissions: 0644
-        owner: root
-        content: |
-          [Unit]
-          Description=SFTPGo container
-          After=sftpgo-gcpfuse.service
-          Requires=sftpgo-gcpfuse.service
-
-          [Service]
-          ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --publish 44:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
-          ExecStop=/usr/bin/docker stop sftpgo.service
-          ExecStopPost=/usr/bin/docker rm sftpgo.service
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
-      bootcmd:
+  
+      runcmd:
       - |
         #!/bin/bash
         # Check if 'Port' line exists in sshd_config and update or add it
@@ -325,11 +327,11 @@ resource "google_compute_instance_template" "instance_template_0" {
         else
           echo 'Port 2222' >> /etc/ssh/sshd_config
         fi
-        systemctl restart sshd
+      - systemctl restart sshd
       - systemctl daemon-reload
       - systemctl enable sftpgo-gcpfuse.service
       - systemctl enable sftpgo.service
-    EOF 
+      EOF 
   }
 
   service_account {
@@ -352,7 +354,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   name = "sftp-instance-group-manager-0"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
-  target_size = 3
+  target_size = 1
 
   version {
     instance_template = google_compute_instance_template.instance_template_0.self_link
