@@ -345,7 +345,7 @@ resource "google_compute_instance_template" "instance_template_0" {
           Restart=always
 
           [Install]
-          WantedBy=multi-user.target
+          WantedBy=default.target
     
 
       runcmd:
@@ -363,7 +363,6 @@ resource "google_compute_instance_template" "instance_template_0" {
       - systemctl enable sftpgo-gcpfuse.service
       - systemctl start sftpgo.service
       - systemctl enable sftpgo.service
-      - systemctl daemon-reload
 
     EOF 
   }
