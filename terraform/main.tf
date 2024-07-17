@@ -298,6 +298,23 @@ write_files:
     ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
     ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
     ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
+- path: /etc/systemd/system/sftpgo-gcpfuse.service
+  permissions: 0644
+  owner: root
+  content: |
+    [Unit]
+    Description=Start a GcpFuse docker container
+    Wants=gcr-online.target
+    After=gcr-online.target
+
+    [Install]
+    WantedBy=default.target
+    [Service]
+    Environment="HOME=/home/gcpfuse"
+    ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
+    ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
+    ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
+    ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse    
 EOF 
   }
 
