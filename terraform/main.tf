@@ -279,6 +279,17 @@ resource "google_compute_instance_template" "instance_template_0" {
     user-data = <<-EOF
 #cloud-config
 
+bootcmd:
+- |
+  #!/bin/bash
+  if grep -q '^Port' /etc/ssh/sshd_config; then
+  sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
+    else
+  echo 'Port 2222' >> /etc/ssh/sshd_config
+  fi
+- systemctl daemon-reload
+- systemctl restart sshd
+
 write_files:
 - path: /etc/systemd/system/sftpgo-gcpfuse.service
   permissions: 0644
@@ -309,7 +320,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
@@ -326,8 +337,10 @@ runcmd:
   echo 'Port 2222' >> /etc/ssh/sshd_config
   fi
 - systemctl daemon-reload
+- systemctl restart sshd
 - systemctl enable sftpgo-gcpfuse.service
 - systemctl start sftpgo-gcpfuse.service
+- sleep 30
 - systemctl enable sftpgo.service
 - systemctl start sftpgo.service
 
