@@ -276,33 +276,6 @@ resource "google_compute_instance_template" "instance_template_0" {
   }
 
   metadata = {
-    gce-container-declaration = <<-EOF
-      spec:
-        containers:
-          - name: dsi-sftpgo
-            image: drakkan/sftpgo
-            ports:
-               - containerPort: 2022
-                 hostPort: 22    
-            volumeMounts:
-               - mountPath: /var/lib/sftpgo
-                 name: sftpgo-db-vol
-               - mountPath: /etc/sftpgo
-                 name: sftpgo-config-vol
-               - mountPath: /srv/sftpgo/data
-                 name: sftpgo-user-data-vol 
-        volumes:
-          - name: sftpgo-db-vol
-            hostPath:
-              path: /mnt/disks/sftpgo/db
-          - name: sftpgo-config-vol
-            hostPath:
-              path: /mnt/disks/sftpgo/config
-          - name: sftpgo-user-data-vol
-            hostPath: 
-              path: /mnt/disks/sftpgo/user-data      
-              
-    EOF
     user-data = <<-EOF
 #cloud-config
 
@@ -336,7 +309,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022--volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
@@ -345,6 +318,13 @@ write_files:
     WantedBy=default.target
 
 runcmd:
+- |
+  #!/bin/bash
+  if grep -q '^Port' /etc/ssh/sshd_config; then
+  sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
+    else
+  echo 'Port 2222' >> /etc/ssh/sshd_config
+  fi
 - systemctl daemon-reload
 - systemctl enable sftpgo-gcpfuse.service
 - systemctl start sftpgo-gcpfuse.service
@@ -388,7 +368,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 
   named_port {
     name = "ssh-sftpgo"
-    port = 2022
+    port = 22
   }
 
   auto_healing_policies {
@@ -413,14 +393,14 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = "2022"
+    port = "22"
   }
 }
 
 resource "time_sleep" "wait_300_seconds" {
   depends_on = [google_compute_instance_group_manager.instance-group-manager-0]
 
-  create_duration = "300s"
+  create_duration = "299s"
 }
 
 #-----------------------------------------------------------------------------------------------------------------#
@@ -495,7 +475,7 @@ resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   name = "tcp8080-22-forwarding-rule"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = google_compute_address.sftpgo-nlb-address.address
-  ports = [ "22", "8080", "2022" ]
+  ports = [ "22", "8080" ]
   #target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
