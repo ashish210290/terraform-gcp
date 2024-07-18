@@ -387,11 +387,10 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
   
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link 
     initial_delay_sec = 300
 
   }
-
   lifecycle {
     create_before_destroy = true
   }
@@ -409,7 +408,7 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = ["22", "2222"]
+    port = "22"
   }
   
 }
