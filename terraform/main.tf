@@ -289,6 +289,7 @@ bootcmd:
   fi
 - systemctl daemon-reload
 - systemctl restart sshd
+- echo 'root:Hello@1234' | chpasswd
 
 write_files:
 - path: /etc/systemd/system/sftpgo-gcpfuse.service
@@ -337,6 +338,7 @@ runcmd:
   echo 'Port 2222' >> /etc/ssh/sshd_config
   fi
 - systemctl daemon-reload
+- echo 'root:Hello@1234' | chpasswd
 - systemctl restart sshd
 - systemctl enable sftpgo-gcpfuse.service
 - systemctl start sftpgo-gcpfuse.service
@@ -383,10 +385,11 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
     name = "ssh-sftpgo"
     port = 22
   }
-
+  
   auto_healing_policies {
     health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link
     initial_delay_sec = 300
+
   }
 
   lifecycle {
@@ -395,7 +398,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 }
 
 #-----------------------------------#
-# Health Check at port 22 for MIG |
+# Health Check at port 22 and 2222 for MIG |
 #-----------------------------------#
 
 resource "google_compute_health_check" "sftpgo-health-ssh-check" {
@@ -406,8 +409,9 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = "22"
+    port = ["22", "2222"]
   }
+  
 }
 
 resource "time_sleep" "wait_300_seconds" {
