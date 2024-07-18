@@ -321,7 +321,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo --volume  /mnt/disks/sftpgo/config:/etc/sftpgo --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
