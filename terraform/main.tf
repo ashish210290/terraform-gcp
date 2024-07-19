@@ -344,7 +344,7 @@ runcmd:
 - systemctl start sftpgo-gcpfuse.service
 - sleep 30
 - systemctl enable sftpgo.service
-- systemctl start sftpgo.service
+- systemctl restart sftpgo.service
 
 EOF 
   }
@@ -464,7 +464,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   timeout_sec = 30
   connection_draining_timeout_sec = 300
   #locality_lb_policy = "MAGLEV"
-  session_affinity = "NONE"
+  session_affinity = "CLIENT_IP_PROTO"
   backend {
     group = google_compute_instance_group_manager.instance-group-manager-0.instance_group
     balancing_mode = "CONNECTION"
