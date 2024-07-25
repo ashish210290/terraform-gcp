@@ -912,12 +912,12 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   # ii. Create Public Ip for Load-Balancer |
   #----------------------------------------#
 
-resource "google_compute_address" "sftpgo-nlb-address" {
- provider      = google-beta
- name          = "sftpgo-nlb-address"
- ip_version    = "IPV4"
- depends_on = [time_sleep.wait_300_seconds]
-}
+# resource "google_compute_address" "sftpgo-nlb-address" {
+#  provider      = google-beta
+#  name          = "sftpgo-nlb-address"
+#  ip_version    = "IPV4"
+#  depends_on = [time_sleep.wait_300_seconds]
+# }
 
   #----------------------------------------------#
   # iii. Create Backend serice for Load-Balancer |
@@ -925,8 +925,9 @@ resource "google_compute_address" "sftpgo-nlb-address" {
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
+  region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
-  load_balancing_scheme = "EXTERNAL"
+  load_balancing_scheme = "INTERNAL"
   protocol = "TCP"
   timeout_sec = 30
   connection_draining_timeout_sec = 300
@@ -941,13 +942,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   log_config {
     enable = true
   }
-  depends_on = [time_sleep.wait_300_seconds]
 }
-
-# resource "google_compute_target_tcp_proxy" "tcp_proxy" {
-#   name        = "tcp-proxy"
-#   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-# }
 
   #------------------------------------------------------------#
   # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
@@ -957,15 +952,15 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   name = "tcp8080-22-forwarding-rule"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = google_compute_address.sftpgo-nlb-address.address
+  ip_address = "10.162.0.10"
   ports = [ "22", "8080" ]
   #target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
-  load_balancing_scheme = "EXTERNAL"
+  load_balancing_scheme = "INTERNAL"
   network_tier = "PREMIUM"
+  subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
-  depends_on = [time_sleep.wait_300_seconds]
 }
 
 
