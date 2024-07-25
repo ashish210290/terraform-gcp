@@ -186,6 +186,7 @@ resource "google_storage_bucket" "sftpgo-gcs" {
 # Create a folder in sftpgo bucket
 resource "google_storage_bucket_object" "sftpgo-container-volumes" {
   name = "sftpgo-gcs/sftpgo-container-volumes"
+  content = " "
   bucket = google_storage_bucket.sftpgo-gcs.name
 }
 
@@ -194,6 +195,7 @@ resource "google_storage_bucket_object" "sftpgo-container-volumes" {
 resource "google_storage_bucket_object" "sftpgo-gcs-bucket-sub-folders" {
   for_each = toset(["db","config","user-data"])
   name = "sftpgo-container-volumes/${each.key}/"
+  content = " "
   bucket = google_storage_bucket.sftpgo-gcs.name
 }
 
