@@ -187,7 +187,7 @@ resource "google_storage_bucket" "sftpgo-gcs" {
 resource "google_storage_bucket_object" "sftpgo-container-volumes" {
   name = "sftpgo-gcs/sftpgo-container-volumes"
   content = ""
-  bucket = google_storage_bucket.sftpgo-gcs
+  bucket = "google_storage_bucket.sftpgo-gcs"
 }
 
 #Create three sub-folders for data, config and user-data
@@ -196,12 +196,12 @@ resource "google_storage_bucket_object" "sftpgo-gcs-bucket-sub-folders" {
   for_each = toset(["db","config","user-data"])
   name = "sftpgo-container-volumes/${each.key}/"
   content = " "
-  bucket = google_storage_bucket.sftpgo-gcs
+  bucket = "google_storage_bucket.sftpgo-gcs"
 }
 
 resource "google_storage_bucket_object" "config-sftpgo-json" {
   name = "sftpgo-gcs/sftpgo-container-volumes/config/sftpgo.json"
-  bucket = google_storage_bucket.sftpgo-gcs
+  bucket = "google_storage_bucket.sftpgo-gcs"
   content = <<-EOT
   {
   "common": {
