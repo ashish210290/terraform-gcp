@@ -185,7 +185,7 @@ resource "google_storage_bucket" "sftpgo-gcs" {
 
 # Create a folder in sftpgo bucket
 resource "google_storage_bucket_object" "sftpgo-container-volumes" {
-  name = "sftpgo-gcs/sftpgo-container-volumes"
+  name = "sftpgo-container-volumes/"
   content = " "
   bucket = google_storage_bucket.sftpgo-gcs.name
 }
@@ -200,7 +200,7 @@ resource "google_storage_bucket_object" "sftpgo-gcs-bucket-sub-folders" {
 }
 
 resource "google_storage_bucket_object" "config-sftpgo-json" {
-  name = "sftpgo-gcs/sftpgo-container-volumes/config/sftpgo.json"
+  name = "sftpgo-container-volumes/config/sftpgo.json"
   bucket = google_storage_bucket.sftpgo-gcs.name
   content = <<-EOT
   {
