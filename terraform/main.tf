@@ -929,7 +929,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   count = 1
   name = "nlb-backend-service-${count.index}"
   region = "northamerica-northeast1"
-  health_checks = [google_compute_region_health_check.sftpgo-health-http-check[count.index].id]
+  health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
   load_balancing_scheme = "INTERNAL"
   protocol = "TCP"
   timeout_sec = 30
