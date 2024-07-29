@@ -841,7 +841,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance_template_0[count.index]
+    instance_template = "google_compute_instance_template.instance_template_0.self_link"
     #instance_template = google_compute_instance_template.instance_template_0.self_link
   }
  
