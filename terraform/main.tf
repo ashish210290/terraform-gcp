@@ -712,9 +712,9 @@ provider "google" {
 # Create an Instance Template for MIG |
 #-------------------------------------#
 
-resource "google_compute_instance_template" "instance_template_0" {
+resource "google_compute_instance_template" "instance-template-0" {
   count = 1
-  name_prefix           = "sftpgo-instance-template-"
+  name_prefix           = "sftpgo-instance-template-${count.index}"
   machine_type          = "e2-micro"
   
 
@@ -841,8 +841,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance_template_0[count.index].self_link
-    #instance_template = google_compute_instance_template.instance_template_0.self_link
+    instance_template = google_compute_instance_template.instance-template-0[count.index].self_link
   }
 
   named_port {
@@ -856,7 +855,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
   
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index].id
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index].self_link
     initial_delay_sec = 300
 
   }
@@ -937,7 +936,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP_PROTO"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager-0.instance_group
+    group = google_compute_instance_group_manager.instance-group-manager-0[count.index].id
     balancing_mode = "CONNECTION"
     #max_connections_per_instance = 100
     
