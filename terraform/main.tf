@@ -929,7 +929,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   count = 1
   name = "nlb-backend-service-${count.index}"
   region = "northamerica-northeast1"
-  health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
+  health_checks = [google_compute_region_health_check.sftpgo-health-http-check[count.index].id]
   load_balancing_scheme = "INTERNAL"
   protocol = "TCP"
   timeout_sec = 30
@@ -937,7 +937,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP_PROTO"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager-0[0].id
+    group = google_compute_instance_group_manager.instance-group-manager-0[count.index].id
     balancing_mode = "CONNECTION"
     #max_connections_per_instance = 100
     
