@@ -937,7 +937,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP_PROTO"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager-0.instance_group
+    group = google_compute_instance_group_manager.instance-group-manager-0[count.index].instance_group
     balancing_mode = "CONNECTION"
     #max_connections_per_instance = 100
     
