@@ -841,7 +841,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance_template_0[0].self_link
+    instance_template = "google_compute_instance_template.instance_template_0[count.index].self_link"
     #instance_template = google_compute_instance_template.instance_template_0.self_link
   }
  
@@ -856,7 +856,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
   
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check[0].self_link
+    health_check      = "google_compute_health_check.sftpgo-health-ssh-check[count.index].self_link"
     initial_delay_sec = 300
 
   }
