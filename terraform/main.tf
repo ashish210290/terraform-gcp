@@ -835,13 +835,13 @@ EOF
 
 resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   count = 1
-  name = "sftp-instance-group-manager-0"
+  name = "sftp-instance-group-manager-${count.index}"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 3
 
   version {
-    instance_template = "google_compute_instance_template.instance_template_0.self_link"
+    instance_template = google_compute_instance_template.instance_template_0[count.index].self_link
     #instance_template = google_compute_instance_template.instance_template_0.self_link
   }
 
@@ -856,7 +856,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
   
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index]
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index].id
     initial_delay_sec = 300
 
   }
