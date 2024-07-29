@@ -713,7 +713,7 @@ provider "google" {
 #-------------------------------------#
 
 resource "google_compute_instance_template" "instance_template_0" {
-  #count = 3
+  count = 1
   name_prefix           = "sftpgo-instance-template-"
   machine_type          = "e2-micro"
   
@@ -834,13 +834,15 @@ EOF
 #--------------------------------------------#
 
 resource "google_compute_instance_group_manager" "instance-group-manager-0" {
+  count = 1
   name = "sftp-instance-group-manager-0"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance_template_0.self_link
+    instance_template = google_compute_instance_template.instance_template_0[count.index].self_link
+    #instance_template = google_compute_instance_template.instance_template_0.self_link
   }
  
   named_port {
@@ -854,7 +856,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
   }
   
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link 
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index].self_link 
     initial_delay_sec = 300
 
   }
@@ -868,6 +870,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager-0" {
 #-----------------------------------#
 
 resource "google_compute_health_check" "sftpgo-health-ssh-check" {
+  count = 1
   name               = "sftpgo-health-ssh-check"
   check_interval_sec = 50
   timeout_sec        = 10
