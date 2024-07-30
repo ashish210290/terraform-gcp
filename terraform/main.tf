@@ -926,7 +926,6 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   #----------------------------------------------#
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
-  count = 1
   name = "nlb-backend-service-${count.index}"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
@@ -937,7 +936,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager[count.index].instance_group
+    group = google_compute_instance_group_manager.instance-group-manager.instance_group
     balancing_mode = "CONNECTION"
     #max_connections = 10
     max_connections_per_instance = 10
