@@ -926,6 +926,7 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   #----------------------------------------------#
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
+  count =  1
   name = "nlb-backend-service-${count.index}"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
@@ -936,7 +937,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager.instance_group
+    group = google_compute_instance_group_manager.instance-group-manager[0].instance_group
     balancing_mode = "CONNECTION"
     #max_connections = 10
     max_connections_per_instance = 10
@@ -955,7 +956,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   count = 1
   name = "tcp8080-22-forwarding-rule"
-  backend_service = google_compute_region_backend_service.nlb-backend-service-0[count.index].id
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0[0].id
   ip_address = "10.162.0.10"
   ports = [ "22", "8080" ]
   #target = google_compute_target_tcp_proxy.tcp_proxy.id
