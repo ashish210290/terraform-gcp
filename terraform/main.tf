@@ -935,7 +935,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   timeout_sec = 30
   connection_draining_timeout_sec = 300
   #locality_lb_policy = "MAGLEV"
-  session_affinity = "CLIENT_IP_PROTO"
+  session_affinity = "CLIENT_IP"
   backend {
     group = google_compute_instance_group_manager.instance-group-manager-0[count.index].instance_group
     balancing_mode = "CONNECTION"
