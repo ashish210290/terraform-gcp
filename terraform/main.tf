@@ -883,7 +883,7 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
 }
 
 resource "time_sleep" "wait_300_seconds" {
-  depends_on = [google_compute_instance_group_manager.instance-group-manager-0]
+  depends_on = [google_compute_instance_group_manager.instance-group-manager]
 
   create_duration = "299s"
 }
