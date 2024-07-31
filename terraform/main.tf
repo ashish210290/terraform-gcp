@@ -713,7 +713,6 @@ provider "google" {
 #-------------------------------------#
 
 resource "google_compute_instance_template" "instance-template-0" {
-  count = 1
   name_prefix           = "sftpgo-instance-template-${count.index}"
   machine_type          = "e2-micro"
   
@@ -745,13 +744,6 @@ resource "google_compute_instance_template" "instance-template-0" {
 #cloud-config
 
 bootcmd:
-- |
-  #!/bin/bash
-  if grep -q '^Port' /etc/ssh/sshd_config; then
-  sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
-    else
-  echo 'Port 2222' >> /etc/ssh/sshd_config
-  fi
 - systemctl daemon-reload
 - systemctl restart sshd
 - echo 'root:Hello@1234' | chpasswd
@@ -786,7 +778,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 22:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 2022:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
@@ -795,13 +787,6 @@ write_files:
     WantedBy=default.target
 
 runcmd:
-- |
-  #!/bin/bash
-  if grep -q '^Port' /etc/ssh/sshd_config; then
-  sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config
-    else
-  echo 'Port 2222' >> /etc/ssh/sshd_config
-  fi
 - systemctl daemon-reload
 - echo 'root:Hello@1234' | chpasswd
 - systemctl restart sshd
@@ -834,14 +819,13 @@ EOF
 #--------------------------------------------#
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
-  count = 1
   name = "sftp-instance-group-manager-${count.index}"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 3
 
   version {
-    instance_template = google_compute_instance_template.instance-template-0[count.index].self_link
+    instance_template = google_compute_instance_template.instance-template-0.self_link
   }
 
   named_port {
@@ -849,10 +833,15 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
     port = 8080
   }
 
+  # named_port {
+  #   name = "ssh-sftpgo"
+  #   port = 22
+  # }
   named_port {
     name = "ssh-sftpgo"
-    port = 22
+    port = 2022
   }
+  
   
   auto_healing_policies {
     health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index].self_link
@@ -869,7 +858,6 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
 #-----------------------------------#
 
 resource "google_compute_health_check" "sftpgo-health-ssh-check" {
-  count = 1
   name               = "sftpgo-health-ssh-check"
   check_interval_sec = 50
   timeout_sec        = 10
@@ -877,8 +865,12 @@ resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   unhealthy_threshold = 10
 
   tcp_health_check {
-    port = "22"
+    port = "2022"
   }
+  
+  # tcp_health_check {
+  #   port = "22"
+  # }
   
 }
 
@@ -926,7 +918,7 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   #----------------------------------------------#
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
-  count =  1
+
   name = "nlb-backend-service-${count.index}"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
@@ -937,7 +929,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager[0].instance_group
+    group = google_compute_instance_group_manager.instance-group-manager.instance_group
     balancing_mode = "CONNECTION"
     #max_connections = 10
     max_connections_per_instance = 10
@@ -954,9 +946,8 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 
 
 resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
-  count = 1
   name = "tcp8080-22-forwarding-rule"
-  backend_service = google_compute_region_backend_service.nlb-backend-service-0[0].id
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = "10.162.0.10"
   ports = [ "22", "8080" ]
   #target = google_compute_target_tcp_proxy.tcp_proxy.id
