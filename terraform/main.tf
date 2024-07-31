@@ -951,8 +951,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 resource "google_compute_target_tcp_proxy" "tcp_proxy" {
   name = "sftpgo-nlb-target-proxy"
   proxy_header = "NONE"
-  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  depends_on = [ google_compute_region_backend_service.nlb-backend-service-0 ]
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0.self_link
 }
   #------------------------------------------------------------#
   # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
