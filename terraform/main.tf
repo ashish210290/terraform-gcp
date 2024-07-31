@@ -713,7 +713,7 @@ provider "google" {
 #-------------------------------------#
 
 resource "google_compute_instance_template" "instance-template-0" {
-  name_prefix           = "sftpgo-instance-template-${count.index}"
+  name_prefix           = "sftpgo-instance-template-"
   machine_type          = "e2-micro"
   
 
@@ -819,7 +819,7 @@ EOF
 #--------------------------------------------#
 
 resource "google_compute_instance_group_manager" "instance-group-manager" {
-  name = "sftp-instance-group-manager-${count.index}"
+  name = "sftp-instance-group-manager"
   base_instance_name = "sftp-instance"
   zone = "northamerica-northeast1-a"
   target_size = 3
@@ -919,7 +919,7 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
 
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 
-  name = "nlb-backend-service-${count.index}"
+  name = "nlb-backend-service-0"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
   load_balancing_scheme = "EXTERNAL"
