@@ -948,11 +948,14 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 #------------------------------------------
 
 
-# resource "google_compute_target_tcp_proxy" "tcp_proxy" {
-#   name = "sftpgo-nlb-target-proxy"
-#   proxy_header = "NONE"
-#   backend_service = google_compute_region_backend_service.nlb-backend-service-0.self_link
-# }
+resource "google_compute_target_tcp_proxy" "tcp_proxy" {
+  name = "sftpgo-nlb-target-proxy"
+  proxy_header = "NONE"
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0.self_link
+
+  depends_on = [ google_compute_region_backend_service.nlb-backend-service-0 ]
+}
+
   #------------------------------------------------------------#
   # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
   #------------------------------------------------------------#
@@ -960,10 +963,10 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 
 resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   name = "tcp8080-22-forwarding-rule"
-  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = "10.162.0.10"
+  #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
+  #ip_address = "10.162.0.10"
   ports = [ "22", "8080" ]
-  #target = google_compute_target_tcp_proxy.tcp_proxy.id
+  target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
   load_balancing_scheme = "INTERNAL_MANAGED"
