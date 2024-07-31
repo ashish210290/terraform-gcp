@@ -924,6 +924,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
   protocol = "TCP"
+  port_name = "ssh-sftpgo"
   timeout_sec = 30
   connection_draining_timeout_sec = 300
   #locality_lb_policy = "MAGLEV"
@@ -931,8 +932,10 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   backend {
     group = google_compute_instance_group_manager.instance-group-manager.instance_group
      balancing_mode = "CONNECTION"
-     max_connections = 10
-    # max_connections_per_instance = 10
+     capacity_scaler = 1
+     #max_connections = 10
+     max_connections_per_instance = 100
+     
     
   }
   log_config {
@@ -940,6 +943,16 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   }
 }
 
+#----------------------------------------- 
+# Create Target Proxy for loadbalancer    |
+#------------------------------------------
+
+
+resource "google_compute_target_tcp_proxy" "tcp_proxy" {
+  name = "sftpgo-nlb-target-proxy"
+  proxy_header = "NONE"
+  backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
+}
   #------------------------------------------------------------#
   # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
   #------------------------------------------------------------#
@@ -950,16 +963,14 @@ resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = "10.162.0.10"
   ports = [ "22", "8080" ]
-  #target = google_compute_target_tcp_proxy.tcp_proxy.id
+  target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
   load_balancing_scheme = "INTERNAL_MANAGED"
   network_tier = "PREMIUM"
-  #subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
+  subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
 }
-
-
 
 
 
