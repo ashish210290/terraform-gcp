@@ -922,7 +922,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
-  load_balancing_scheme = "EXTERNAL"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   protocol = "TCP"
   timeout_sec = 30
   connection_draining_timeout_sec = 300
@@ -953,9 +953,9 @@ resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   #target = google_compute_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   ip_version = "IPV4"
-  load_balancing_scheme = "EXTERNAL"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   network_tier = "PREMIUM"
-  subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
+  #subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
 }
 
