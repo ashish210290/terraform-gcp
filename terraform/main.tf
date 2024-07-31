@@ -967,7 +967,7 @@ resource "google_compute_forwarding_rule" "tcp8080-22-forwarding-rule" {
   port_range = "22"
   target = google_compute_region_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
-  ip_version = "IPV4"
+  #ip_version = "IPV4"
   load_balancing_scheme = "INTERNAL_MANAGED"
   network_tier = "PREMIUM"
   subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
