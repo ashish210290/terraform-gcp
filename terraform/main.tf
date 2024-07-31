@@ -844,7 +844,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   
   
   auto_healing_policies {
-    health_check      = google_compute_health_check.sftpgo-health-ssh-check[count.index].self_link
+    health_check      = google_compute_health_check.sftpgo-health-ssh-check.self_link
     initial_delay_sec = 300
 
   }
