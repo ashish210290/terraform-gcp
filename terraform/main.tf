@@ -975,7 +975,7 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
 resource "google_compute_forwarding_rule" "tcp8080-forwarding-rule" {
   name = "tcp8080-forwarding-rule"
   #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = "10.162.0.10"
+  #ip_address = "10.162.0.10"
   port_range = "8080"
   target = google_compute_region_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
