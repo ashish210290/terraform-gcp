@@ -829,7 +829,7 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   }
 
   named_port {
-    name = "http-sftp"
+    name = "http-sftpgo"
     port = 8080
   }
 
@@ -924,19 +924,17 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
   protocol = "TCP"
-  port_name = "ssh-sftpgo"
+  #port_name = "http-sftpgo"
   timeout_sec = 30
   connection_draining_timeout_sec = 300
   #locality_lb_policy = "MAGLEV"
   session_affinity = "CLIENT_IP"
   backend {
-    group = google_compute_instance_group_manager.instance-group-manager.instance_group
+     group = google_compute_instance_group_manager.instance-group-manager.instance_group
      balancing_mode = "CONNECTION"
      capacity_scaler = 1
      #max_connections = 10
      max_connections_per_instance = 100
-     
-    
   }
   log_config {
     enable = true
@@ -964,7 +962,7 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
   name = "tcp22-forwarding-rule"
   #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   ip_address = "10.162.0.10"
-  port_range = "22"
+  ports = [ "22", "8080" ]
   target = google_compute_region_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   #ip_version = "IPV4"
@@ -973,21 +971,6 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
   subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
 }
-
-resource "google_compute_forwarding_rule" "tcp8080-forwarding-rule" {
-  name = "tcp8080-forwarding-rule"
-  #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = "10.162.0.12"
-  port_range = "8080"
-  target = google_compute_region_target_tcp_proxy.tcp_proxy.id
-  ip_protocol = "TCP"
-  #ip_version = "IPV4"
-  load_balancing_scheme = "INTERNAL_MANAGED"
-  network_tier = "PREMIUM"
-  subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
-  region = var.region
-}
-
 
 
 
