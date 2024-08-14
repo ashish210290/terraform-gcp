@@ -853,9 +853,9 @@ resource "google_compute_instance_group_manager" "instance-group-manager" {
   }
 }
 
-#-----------------------------------#
+#------------------------------------------#
 # Health Check at port 22 and 2222 for MIG |
-#-----------------------------------#
+#------------------------------------------#
 
 resource "google_compute_health_check" "sftpgo-health-ssh-check" {
   name               = "sftpgo-health-ssh-check"
@@ -907,7 +907,7 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   #-----------------------------------------# 
 
 resource "google_compute_region_health_check" "sftpgo-ssh-health-check" {
-  name               = "sftpgo-health-http-check"
+  name               = "sftpgo-ssh-health-check"
   check_interval_sec = 50
   timeout_sec        = 10
   healthy_threshold  = 3
