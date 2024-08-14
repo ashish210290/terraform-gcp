@@ -922,7 +922,7 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
   name = "nlb-backend-service-0"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
-  load_balancing_scheme = "INTERNAL_MANAGED"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
   protocol = "TCP"
   port_name = "ssh-sftpgo"
   timeout_sec = 30
@@ -961,12 +961,12 @@ resource "google_compute_region_target_tcp_proxy" "tcp_proxy" {
 resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
   name = "tcp22-forwarding-rule"
   #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = "10.162.0.10"
+  #ip_address = "10.162.0.10"
   port_range = "22"
   target = google_compute_region_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   #ip_version = "IPV4"
-  load_balancing_scheme = "INTERNAL_MANAGED"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
   network_tier = "PREMIUM"
   subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
@@ -975,12 +975,12 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
 resource "google_compute_forwarding_rule" "tcp8080-forwarding-rule" {
   name = "tcp8080-forwarding-rule"
   #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
-  ip_address = "10.162.0.12"
+  #ip_address = "10.162.0.12"
   port_range = "8080"
   target = google_compute_region_target_tcp_proxy.tcp_proxy.id
   ip_protocol = "TCP"
   #ip_version = "IPV4"
-  load_balancing_scheme = "INTERNAL_MANAGED"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
   network_tier = "PREMIUM"
   subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
