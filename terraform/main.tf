@@ -968,7 +968,7 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
   #ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL_MANAGED"
   network_tier = "PREMIUM"
-  subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
+  #subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
 }
 
@@ -982,7 +982,7 @@ resource "google_compute_forwarding_rule" "tcp8080-forwarding-rule" {
   #ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL_MANAGED"
   network_tier = "PREMIUM"
-  subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
+  #subnetwork = "projects/divine-energy-253221/regions/northamerica-northeast1/subnetworks/default"
   region = var.region
 }
 
