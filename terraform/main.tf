@@ -902,16 +902,22 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
   depends_on = [time_sleep.wait_300_seconds]
 }
 
-  #----------------------------------------#
-  # ii. Create Public Ip for Load-Balancer |
-  #----------------------------------------#
+  #-----------------------------------------#
+  # ii. Health Check on TCP port 22        |
+  #-----------------------------------------# 
 
-# resource "google_compute_address" "sftpgo-nlb-address" {
-#  provider      = google-beta
-#  name          = "sftpgo-nlb-address"
-#  ip_version    = "IPV4"
-#  depends_on = [time_sleep.wait_300_seconds]
-# }
+resource "google_compute_region_health_check" "sftpgo-ssh-health-check" {
+  name               = "sftpgo-health-http-check"
+  check_interval_sec = 50
+  timeout_sec        = 10
+  healthy_threshold  = 3
+  unhealthy_threshold = 10
+
+  tcp_health_check {
+    port = "22"
+  }
+  depends_on = [time_sleep.wait_300_seconds]
+}
 
   #----------------------------------------------#
   # iii. Create Backend serice for Load-Balancer |
@@ -920,6 +926,30 @@ resource "google_compute_region_health_check" "sftpgo-health-http-check" {
 resource "google_compute_region_backend_service" "nlb-backend-service-0" {
 
   name = "nlb-backend-service-0"
+  region = "northamerica-northeast1"
+  health_checks = [google_compute_region_health_check.sftpgo-ssh-health-check.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "TCP"
+  port_name = "http-sftpgo"
+  timeout_sec = 30
+  connection_draining_timeout_sec = 300
+  #locality_lb_policy = "MAGLEV"
+  session_affinity = "CLIENT_IP"
+  backend {
+     group = google_compute_instance_group_manager.instance-group-manager.instance_group
+     balancing_mode = "CONNECTION"
+     capacity_scaler = 1
+     #max_connections = 10
+     max_connections_per_instance = 100
+  }
+  log_config {
+    enable = true
+  }
+}
+
+resource "google_compute_region_backend_service" "nlb-backend-service-1" {
+
+  name = "nlb-backend-service-1"
   region = "northamerica-northeast1"
   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -940,21 +970,59 @@ resource "google_compute_region_backend_service" "nlb-backend-service-0" {
     enable = true
   }
 }
+# resource "google_compute_region_backend_service" "nlb-backend-service-0" {
+
+#   name = "nlb-backend-service-0"
+#   region = "northamerica-northeast1"
+#   health_checks = [google_compute_region_health_check.sftpgo-health-http-check.id]
+#   load_balancing_scheme = "EXTERNAL_MANAGED"
+#   protocol = "TCP"
+#   port_name = "ssh-sftpgo"
+#   timeout_sec = 30
+#   connection_draining_timeout_sec = 300
+#   #locality_lb_policy = "MAGLEV"
+#   session_affinity = "CLIENT_IP"
+#   backend {
+#      group = google_compute_instance_group_manager.instance-group-manager.instance_group
+#      balancing_mode = "CONNECTION"
+#      capacity_scaler = 1
+#      #max_connections = 10
+#      max_connections_per_instance = 100
+#   }
+#   log_config {
+#     enable = true
+#   }
+# }
+
+
 
 #----------------------------------------- 
 # Create Target Proxy for loadbalancer    |
 #------------------------------------------
 
 
-resource "google_compute_region_target_tcp_proxy" "tcp_proxy" {
-  name = "sftpgo-nlb-target-proxy"
+resource "google_compute_region_target_tcp_proxy" "tcp_proxy-0" {
+  name = "sftpgo-nlb-target-proxy-0"
   region = var.region
   proxy_header = "NONE"
   backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
 }
 
+
+#----------------------------------------- 
+# Create Target Proxy for loadbalancer    |
+#------------------------------------------
+
+
+resource "google_compute_region_target_tcp_proxy" "tcp_proxy-1" {
+  name = "sftpgo-nlb-target-proxy-1"
+  region = var.region
+  proxy_header = "NONE"
+  backend_service = google_compute_region_backend_service.nlb-backend-service-1.id
+}
+
   #------------------------------------------------------------#
-  # iv. Create Forwarding rules for SftpGo ports 22 and 8080 |
+  # iv. Create Forwarding rules for SftpGo ports 22 --> 2022   |
   #------------------------------------------------------------#
 
 
@@ -962,8 +1030,8 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
   name = "tcp22-forwarding-rule"
   #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   #ip_address = "10.162.0.10"
-  port_range = "22"
-  target = google_compute_region_target_tcp_proxy.tcp_proxy.id
+  port_range = "8080"
+  target = google_compute_region_target_tcp_proxy.tcp_proxy-0.id
   ip_protocol = "TCP"
   #ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -972,12 +1040,15 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
   region = var.region
 }
 
+  #--------------------------------------------------------------#
+  # iv. Create Forwarding rules for SftpGo ports 8080 --> 8080   |
+  #--------------------------------------------------------------#
 resource "google_compute_forwarding_rule" "tcp8080-forwarding-rule" {
   name = "tcp8080-forwarding-rule"
   #backend_service = google_compute_region_backend_service.nlb-backend-service-0.id
   #ip_address = "10.162.0.12"
-  port_range = "8080"
-  target = google_compute_region_target_tcp_proxy.tcp_proxy.id
+  port_range = "22"
+  target = google_compute_region_target_tcp_proxy.tcp_proxy-1.id
   ip_protocol = "TCP"
   #ip_version = "IPV4"
   load_balancing_scheme = "EXTERNAL_MANAGED"
