@@ -739,6 +739,7 @@ resource "google_compute_instance_template" "instance-template-0" {
   }
 
   metadata = {
+    google-logging-enabled = "TRUE"
     enable-oslogin = "TRUE"
     user-data = <<-EOF
 #cloud-config
@@ -764,7 +765,7 @@ write_files:
     [Service]
     Environment="HOME=/home/gcpfuse"
     ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
-    ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --log-driver=gcplogs --log-opt gcp-project="${var.project_id}" --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
+    ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --log-driver=gcplogs --log-opt gcp-project=${var.project_id} --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
     ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
     ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
@@ -778,7 +779,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --log-driver=gcplogs --log-opt gcp-project="${var.project_id}" -p 2022:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared  drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --log-driver=gcplogs --log-opt gcp-project=${var.project_id} -p 2022:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared  drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
