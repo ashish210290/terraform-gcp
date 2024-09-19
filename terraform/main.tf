@@ -764,7 +764,7 @@ write_files:
     [Service]
     Environment="HOME=/home/gcpfuse"
     ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries northamerica-northeast1-docker.pkg.dev
-    ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
+    ExecStart=/usr/bin/docker run --rm --name=gcpfuse-mounter --privileged --log-driver=gcplogs --log-opt gcp-project="${var.project_id}" --volume /dev/fuse:/dev/fuse --volume /mnt/disks/sftpgo:/mnt/sftpgo:shared  northamerica-northeast1-docker.pkg.dev/divine-energy-253221/gcp-repo/gcs-bucket-mount:latest
     ExecStop=/usr/bin/docker stop sftpgo-gcpfuse
     ExecStopPost=/usr/bin/docker rm sftpgo-gcpfuse
 
@@ -778,7 +778,7 @@ write_files:
     Requires=sftpgo-gcpfuse.service
 
     [Service]
-    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged -p 2022:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared drakkan/sftpgo:latest
+    ExecStart=/usr/bin/docker run --rm --name sftpgo --privileged --log-driver=gcplogs --log-opt gcp-project="${var.project_id}" -p 2022:2022 -p 8080:8080 --volume /mnt/disks/sftpgo/db:/var/lib/sftpgo:shared --volume  /mnt/disks/sftpgo/config:/etc/sftpgo:shared --volume  /mnt/disks/sftpgo/user-data:/srv/sftpgo/data:shared  drakkan/sftpgo:latest
     ExecStop=/usr/bin/docker stop sftpgo.service
     ExecStopPost=/usr/bin/docker rm sftpgo.service
     Restart=always
@@ -1021,9 +1021,9 @@ resource "google_compute_region_target_tcp_proxy" "tcp_proxy-1" {
   backend_service = google_compute_region_backend_service.nlb-backend-service-1.id
 }
 
-  #------------------------------------------------------------#
-  # iv. Create Forwarding rules for SftpGo ports 22 --> 2022   |
-  #------------------------------------------------------------#
+  #--------------------------------------------------------------#
+  # iv. Create Forwarding rules for SftpGo ports 8080 --> 8080   |
+  #--------------------------------------------------------------#
 
 
 resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
@@ -1041,7 +1041,7 @@ resource "google_compute_forwarding_rule" "tcp22-forwarding-rule" {
 }
 
   #--------------------------------------------------------------#
-  # iv. Create Forwarding rules for SftpGo ports 8080 --> 8080   |
+  # iv. Create Forwarding rules for SftpGo ports 22 --> 2022     |
   #--------------------------------------------------------------#
 resource "google_compute_forwarding_rule" "tcp8080-forwarding-rule" {
   name = "tcp8080-forwarding-rule"
