@@ -16,4 +16,4 @@ substitutions:
   _DIR: "."
   _TF_DIR: terraform
 options:
-  logging: NONE
+  logging: CLOUD_LOGGING_ONLY
