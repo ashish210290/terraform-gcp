@@ -1,10 +1,9 @@
 env = "pr"
-project_id = "divine-energy-253221"
-project_name = "My Project 96351"
-project_number = "76231282453"
+project_id = "fourth-walker-437420-f1"
+project_name = "My Project 437420"
+project_number = "177464341265"
 region = "northamerica-northeast1"
 data_platform_ops_br = "main"
-
 display_name = "test display name"
 description = "test description"
 type = "email"
