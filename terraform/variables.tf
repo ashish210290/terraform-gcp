@@ -7,5 +7,4 @@ variable "data_platform_ops_br" {}
 variable "display_name" {}
 variable "description" {}
 variable "type" {}
-variable "region" {}
 variable "region_dr" {}
