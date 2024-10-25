@@ -88,7 +88,7 @@ resource "google_secret_manager_secret" "security-api-key" {
 
 # Token app Service in Montreal
 resource "google_cloud_run_v2_service" "wif-tokenapp-service-1" {
-
+  project = var.project_id
   name     = "wif-tokenapp-service-1"
   location = var.region
   ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
@@ -122,6 +122,7 @@ resource "google_cloud_run_v2_service" "wif-tokenapp-service-1" {
 #Token app Service in Toronto
 resource "google_cloud_run_v2_service" "wif-tokenapp-service-2" {
 
+  project = var.project_id
   name     = "wif-tokenapp-service-2"
   location = var.region_dr
   ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
